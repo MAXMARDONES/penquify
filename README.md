@@ -25,6 +25,13 @@ with coffee stains, folds, blur, skew — and verified ground truth for every fi
 
 [penquify.com](https://penquify.com) · [Docs](https://docs.penquify.com) · [GitHub](https://github.com/MAXMARDONES/penquify)
 
+<br/>
+
+[![Open Source](https://img.shields.io/badge/Open%20Source-Self%20Host-22C55E?style=for-the-badge&logo=github)](https://github.com/MAXMARDONES/penquify)
+[![AWS Ready](https://img.shields.io/badge/AWS-EKS%20Deploy-FF9900?style=for-the-badge&logo=amazon-web-services)](https://github.com/MAXMARDONES/penquify/tree/main/k8s)
+[![Docker](https://img.shields.io/badge/Docker-One%20Command-2496ED?style=for-the-badge&logo=docker)](https://github.com/MAXMARDONES/penquify/blob/main/Dockerfile)
+[![Hosted SaaS](https://img.shields.io/badge/Hosted-penquify.com-114541?style=for-the-badge)](https://penquify.com)
+
 > *From Chilean slang **"penca"** (lousy, worse) — because your document photos should look realistically bad, not studio-perfect.*
 
 </div>
