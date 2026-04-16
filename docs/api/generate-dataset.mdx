@@ -1,0 +1,97 @@
+---
+title: "POST /generate/dataset"
+description: "Full pipeline: document JSON to PDF to photo variations in one call."
+icon: "layer-group"
+---
+
+## Endpoint
+
+```
+POST /generate/dataset
+```
+
+Complete pipeline that generates a document from JSON, renders it to PDF/PNG, and then generates photo variations.
+
+## Request Body
+
+<ParamField body="header" type="object" required>
+  Document header fields (same schema as [POST /generate/document](/api/generate-document)).
+</ParamField>
+
+<ParamField body="items" type="array" required>
+  List of line items (same schema as [POST /generate/document](/api/generate-document)).
+</ParamField>
+
+<ParamField body="observations" type="string" default="">
+  Handwritten notes
+</ParamField>
+
+<ParamField body="template" type="string" default="guia_despacho.html">
+  Template file name
+</ParamField>
+
+<ParamField body="presets" type="string[]">
+  Photo preset names. If omitted, generates all 8 presets.
+</ParamField>
+
+<ParamField body="doc_description" type="string" default="">
+  Key fields to preserve in photos. Auto-generated from doc_number if empty.
+</ParamField>
+
+## Response
+
+<ResponseField name="run_id" type="string">
+  Unique identifier for this generation run
+</ResponseField>
+
+<ResponseField name="document" type="object">
+  Generated document files.
+  <Expandable>
+    <ResponseField name="html" type="string">Path to HTML file</ResponseField>
+    <ResponseField name="png" type="string">Path to PNG file</ResponseField>
+    <ResponseField name="pdf" type="string">Path to PDF file</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="photos" type="array">
+  Array of photo generation results.
+  <Expandable>
+    <ResponseField name="name" type="string">Variation name</ResponseField>
+    <ResponseField name="path" type="string">File path (null if failed)</ResponseField>
+    <ResponseField name="ok" type="boolean">Success flag</ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```bash
+curl -X POST http://localhost:8000/generate/dataset \
+  -H "Content-Type: application/json" \
+  -d '{
+    "header": {
+      "doc_number": "00054321",
+      "date": "15/04/2026",
+      "emitter_name": "ACME FOODS S.A.",
+      "receiver_name": "DISTRIBUIDORA CENTRAL LTDA."
+    },
+    "items": [
+      {"description": "HARINA DE TRIGO 25KG", "qty": 40, "unit": "UN", "unit_price": 12500, "total": 500000}
+    ],
+    "presets": ["full_picture", "blurry"]
+  }'
+```
+
+```json Response
+{
+  "run_id": "c3d4e5f6g7",
+  "document": {
+    "html": "output/c3d4e5f6g7/guia_despacho_00054321.html",
+    "png": "output/c3d4e5f6g7/guia_despacho_00054321.png",
+    "pdf": "output/c3d4e5f6g7/guia_despacho_00054321.pdf"
+  },
+  "photos": [
+    {"name": "full_picture", "path": "output/c3d4e5f6g7/photos/photo_full_picture.png", "ok": true},
+    {"name": "blurry", "path": "output/c3d4e5f6g7/photos/photo_blurry.png", "ok": true}
+  ]
+}
+```

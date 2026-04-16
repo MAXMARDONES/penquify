@@ -1,0 +1,70 @@
+---
+title: "GET /documents"
+description: "List all generated document runs and download files."
+icon: "folder-open"
+---
+
+## List Runs
+
+```
+GET /documents
+```
+
+List all generated document runs, sorted by most recent. Returns up to 50 runs.
+
+### Response
+
+Array of run objects:
+
+<ResponseField name="run_id" type="string">
+  Unique run identifier
+</ResponseField>
+
+<ResponseField name="files" type="string[]">
+  List of file names in this run (recursive)
+</ResponseField>
+
+### Example
+
+```bash
+curl http://localhost:8000/documents
+```
+
+```json Response
+[
+  {
+    "run_id": "a1b2c3d4e5",
+    "files": [
+      "guia_despacho_00054321.html",
+      "guia_despacho_00054321.png",
+      "guia_despacho_00054321.pdf",
+      "photo_full_picture.png",
+      "photo_blurry.png"
+    ]
+  }
+]
+```
+
+## Download File
+
+```
+GET /documents/{run_id}/{filename}
+```
+
+Download a specific file from a generation run. Searches recursively within the run directory.
+
+<ParamField path="run_id" type="string" required>
+  The run ID returned from a generation endpoint.
+</ParamField>
+
+<ParamField path="filename" type="string" required>
+  File name to download (e.g. `photo_full_picture.png`).
+</ParamField>
+
+### Example
+
+```bash
+curl -o photo.png http://localhost:8000/documents/a1b2c3d4e5/photo_full_picture.png
+```
+
+Returns the file with appropriate content type, or 404 if not found.

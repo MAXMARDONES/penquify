@@ -1,0 +1,142 @@
+---
+title: "Generate from JSON"
+description: "Create a document from structured JSON data and generate PDF, PNG, and photo variations."
+icon: "file-code"
+---
+
+## Overview
+
+The most common workflow: define a document as JSON, generate clean PDF/PNG, then produce realistic photo variations.
+
+## Step 1: Define Your Document
+
+Create a JSON file with `header`, `items`, and optional `observations`:
+
+```json doc.json
+{
+  "header": {
+    "doc_type": "guia_despacho",
+    "doc_number": "00098765",
+    "date": "20/04/2026",
+    "emitter_name": "ACME LOGISTICS S.A.",
+    "emitter_rut": "76.543.210-K",
+    "emitter_address": "Av. Industrial 500, Santiago",
+    "receiver_name": "HOTEL PACIFIC S.A.",
+    "receiver_rut": "96.123.456-7",
+    "receiver_address": "Costanera Norte 2100, Vina del Mar",
+    "oc_number": "4500002345",
+    "vehicle_plate": "HJKL-42",
+    "driver_name": "Carlos Mendez"
+  },
+  "items": [
+    {
+      "pos": 1,
+      "code": "AL-3001",
+      "description": "SALMON FRESCO FILETE (kg)",
+      "qty": 25,
+      "unit": "KG",
+      "unit_price": 14500,
+      "total": 362500
+    },
+    {
+      "pos": 2,
+      "code": "AL-3050",
+      "description": "CAMARON ECUATORIANO 16/20 (kg)",
+      "qty": 10,
+      "unit": "KG",
+      "unit_price": 18900,
+      "total": 189000
+    }
+  ],
+  "observations": "Salmon: 25kg en 5 bandejas de 5kg cada una."
+}
+```
+
+## Step 2: Generate the Document
+
+<Tabs>
+  <Tab title="CLI">
+    ```bash
+    penquify pdf --doc-json doc.json --output output/
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    import asyncio
+    import json
+    from penquify.models import Document, DocHeader, DocItem
+    from penquify.generators.pdf import generate_document_files
+
+    with open("doc.json") as f:
+        data = json.load(f)
+
+    doc = Document(
+        header=DocHeader(**data["header"]),
+        items=[DocItem(**it) for it in data["items"]],
+        observations=data.get("observations", ""),
+    )
+
+    files = asyncio.run(generate_document_files(doc, "output/"))
+    print(files)
+    # {"html": "output/guia_despacho_00098765.html",
+    #  "png": "output/guia_despacho_00098765.png",
+    #  "pdf": "output/guia_despacho_00098765.pdf"}
+    ```
+  </Tab>
+  <Tab title="API">
+    ```bash
+    curl -X POST http://localhost:8000/generate/document \
+      -H "Content-Type: application/json" \
+      -d @doc.json
+    ```
+  </Tab>
+</Tabs>
+
+This produces three files: HTML (source), PNG (screenshot), PDF (printable).
+
+## Step 3: Generate Photo Variations
+
+<Tabs>
+  <Tab title="CLI">
+    ```bash
+    penquify photos --image output/guia_despacho_00098765.png \
+      --presets full_picture folded_skewed blurry coffee_stain
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    from penquify.generators.photo import generate_dataset
+
+    results = asyncio.run(generate_dataset(
+        "output/guia_despacho_00098765.png",
+        output_dir="output/photos",
+        preset_names=["full_picture", "folded_skewed", "blurry", "coffee_stain"],
+        doc_description="guia 00098765, OC 4500002345, 2 items seafood",
+    ))
+
+    for r in results:
+        print(f"{r['name']}: {'OK' if r['ok'] else 'FAIL'} -> {r['path']}")
+    ```
+  </Tab>
+</Tabs>
+
+<Tip>
+The `doc_description` parameter helps the image generator preserve key fields. Include the document number, reference numbers, and any critical values.
+</Tip>
+
+## Full Pipeline (Document + Photos in One Call)
+
+<Tabs>
+  <Tab title="CLI">
+    ```bash
+    penquify demo --output output/ --presets full_picture blurry
+    ```
+  </Tab>
+  <Tab title="API">
+    ```bash
+    curl -X POST http://localhost:8000/generate/dataset \
+      -H "Content-Type: application/json" \
+      -d @doc.json
+    ```
+  </Tab>
+</Tabs>

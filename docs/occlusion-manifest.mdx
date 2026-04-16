@@ -1,0 +1,106 @@
+---
+title: "Occlusion Manifest"
+description: "Field-level visibility tracking: what's visible, what's hidden, and why."
+icon: "eye-slash"
+---
+
+## What Is an Occlusion Manifest?
+
+An occlusion manifest is a per-photo JSON that explains the visibility status of every field in the source document. For each field, it says whether it's `visible` or provides the specific reason it failed extraction.
+
+This is what makes penquify datasets useful for benchmarking: you know exactly which fields are extractable and which aren't, and why.
+
+## Format
+
+```json
+{
+  "doc_number": "visible",
+  "emitter_name": {
+    "status": "not_visible",
+    "extracted": null,
+    "expected": "ACME FOODS S.A.",
+    "confidence": 0.0,
+    "reasons": ["occluded_by_crop(top 10-15%)"]
+  },
+  "item_1_description": {
+    "status": "illegible",
+    "extracted": "HARINA DE TRGO PREM",
+    "expected": "HARINA DE TRIGO PREMIUM 25KG",
+    "confidence": 0.35,
+    "reasons": ["blurred_by_motion(horizontal and downward)"]
+  }
+}
+```
+
+## How It Works
+
+The `build_occlusion_manifest()` function cross-references the verification result with the `PhotoVariation` config:
+
+1. If a field has status `match` -> `"visible"`
+2. If a field is `not_visible` or `illegible`, check which variation settings explain it
+3. If a field is `mismatch`, mark as image generation error
+
+## Occlusion Reasons
+
+### Crop / Framing
+
+| Reason | Triggered When |
+|--------|---------------|
+| `occluded_by_crop(header)` | `cropped_header=True` |
+| `occluded_by_crop(top 10-15%)` | `missing_area="top 10-15%"` |
+
+### Stains / Contamination
+
+| Reason | Triggered When |
+|--------|---------------|
+| `obscured_by_coffee_stain(upper_right)` | `stain.type="coffee"` + `text_obstruction` is `partial` or `severe` |
+| `obscured_by_grease_stain(center)` | Same, with grease stain |
+| `obscured_by_water_stain(lower_left)` | Same, with water stain |
+
+### Blur / Degradation
+
+| Reason | Triggered When |
+|--------|---------------|
+| `blurred_by_motion(horizontal)` | `motion_blur=True` |
+| `degraded_by_compression(heavy)` | `jpeg_compression` is `moderate` or `heavy` |
+| `washed_out_by_glare(general)` | `glare="strong"` |
+
+### Angle / Distortion
+
+| Reason | Triggered When |
+|--------|---------------|
+| `distorted_by_extreme_angle` | Angle contains `"45"` or `skew="strong"` |
+| `warped_by_paper_curvature` | `curvature="strong"` |
+
+### Multi-page / Hand
+
+| Reason | Triggered When |
+|--------|---------------|
+| `hidden_behind_stacked_page` | `stapled=True` + `stacked_sheets_behind > 0` |
+| `possible_finger_occlusion` | `hand_visible=True` (only for `not_visible` fields) |
+
+### Image Generation Error
+
+| Reason | Triggered When |
+|--------|---------------|
+| `hallucinated_or_garbled_by_image_gen` | Status is `mismatch` |
+
+## Using Manifests for Benchmarking
+
+The occlusion manifest enables precise OCR benchmarking:
+
+```python
+# Load manifest
+manifest = json.load(open("photo_blurry_occlusion.json"))
+
+# Only test fields that should be extractable
+testable = {k: v for k, v in manifest.items() if v == "visible"}
+
+# Fields your model should NOT extract (expected failures)
+occluded = {k: v for k, v in manifest.items() if v != "visible"}
+```
+
+This lets you measure:
+- **Recall on visible fields**: can your model extract what's readable?
+- **Robustness on degraded fields**: can your model handle partial visibility?
+- **False positive rate**: does your model hallucinate values for hidden fields?

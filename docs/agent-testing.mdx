@@ -1,0 +1,132 @@
+---
+title: "Agent Testing"
+description: "End-to-end testing for document-processing agents: generate docs, feed to agent, verify actions."
+icon: "robot"
+---
+
+## Overview
+
+Penquify enables end-to-end testing of document-processing agents. Generate documents with known data, produce realistic photos, feed them to your agent, and verify both the extractions and downstream actions.
+
+## The Test Loop
+
+<Steps>
+  <Step title="Generate documents with known ground truth">
+    Use penquify to create documents where every field value is controlled.
+  </Step>
+  <Step title="Generate realistic photos">
+    Apply variations to simulate real operational conditions.
+  </Step>
+  <Step title="Feed photos to your agent">
+    Send the generated photos to your vision agent, document processor, or OCR pipeline.
+  </Step>
+  <Step title="Verify extractions against ground truth">
+    Compare what the agent extracted with the known source data.
+  </Step>
+  <Step title="Verify downstream actions">
+    Check that the agent performed the correct actions (e.g., created the right SAP entries, sent the right notifications).
+  </Step>
+</Steps>
+
+## Example: Testing a Receiving Agent
+
+```python
+import asyncio
+from penquify.models import Document, DocHeader, DocItem
+from penquify.generators.pdf import generate_document_files
+from penquify.generators.photo import generate_photo
+from penquify.models.variation import PRESETS
+
+async def test_receiving_agent():
+    # Step 1: Create a dispatch guide with known data
+    doc = Document(
+        header=DocHeader(
+            doc_type="guia_despacho",
+            doc_number="00012345",
+            date="20/04/2026",
+            emitter_name="ACME SUPPLIER S.A.",
+            receiver_name="ACME WAREHOUSE LTDA.",
+            oc_number="4500009876",
+        ),
+        items=[
+            DocItem(pos=1, code="S-100", description="PRODUCT ALPHA 10KG",
+                    qty=50, unit="CJ", unit_price=8000, total=400000),
+        ],
+    )
+
+    # Step 2: Generate clean document + a realistic photo
+    files = await generate_document_files(doc, "test/source")
+    photo_path = await generate_photo(
+        files["png"],
+        PRESETS["full_picture"],
+        "test/photo.png",
+        doc_description="guia 00012345, OC 4500009876, 50 CJ PRODUCT ALPHA",
+    )
+
+    # Step 3: Feed to your agent
+    agent_result = await your_receiving_agent.process_photo(photo_path)
+
+    # Step 4: Verify extractions
+    assert agent_result["doc_number"] == "00012345"
+    assert agent_result["oc_number"] == "4500009876"
+    assert agent_result["items"][0]["qty"] == 50
+
+    # Step 5: Verify downstream actions
+    assert agent_result["sap_entry_created"] == True
+    assert agent_result["notification_sent"] == True
+
+asyncio.run(test_receiving_agent())
+```
+
+## Testing with Degraded Photos
+
+Test agent robustness with harder variations:
+
+```python
+from penquify.models.variation import PhotoVariation, Stain
+
+# Test: can the agent handle a blurry photo?
+blurry_result = await test_with_variation(
+    doc, PhotoVariation(name="blurry_test", motion_blur=True)
+)
+
+# Test: can the agent handle a stained document?
+stained_result = await test_with_variation(
+    doc, PhotoVariation(
+        name="stained_test",
+        stain=Stain(type="coffee", location="center", opacity="heavy", text_obstruction="severe")
+    )
+)
+
+# Test: can the agent handle a cropped header?
+cropped_result = await test_with_variation(
+    doc, PhotoVariation(name="cropped_test", cropped_header=True, missing_area="top 10-15%")
+)
+```
+
+## Regression Testing
+
+Generate a fixed dataset once, save it, and rerun your agent against it whenever you push changes:
+
+```python
+# Generate once (save to persistent storage)
+dataset = await generate_verified_dataset(
+    reference_image_path=files["png"],
+    document=doc,
+    output_dir="tests/fixtures/receiving",
+    preset_names=["full_picture", "folded_skewed", "blurry"],
+)
+
+# In your test suite, load and run
+def test_agent_on_penquify_dataset():
+    photos = glob("tests/fixtures/receiving/photo_*.png")
+    ground_truth = json.load(open("tests/fixtures/receiving/ground_truth.json"))
+
+    for photo in photos:
+        result = agent.process_photo(photo)
+        assert result["doc_number"] == ground_truth["doc_number"]
+```
+
+<Tip>
+For regression testing, generate the dataset once and commit the photos + ground truth to your test fixtures. This ensures deterministic tests without re-calling Gemini on every run.
+</Tip>

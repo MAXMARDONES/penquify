@@ -1,0 +1,72 @@
+---
+title: "GET /presets & /templates"
+description: "List available photo variation presets and document templates."
+icon: "list"
+---
+
+## List Presets
+
+```
+GET /presets
+```
+
+Returns all available photo variation presets with their full configuration.
+
+### Example
+
+```bash
+curl http://localhost:8000/presets
+```
+
+```json Response
+{
+  "full_picture": {
+    "meta": {
+      "camera": "Samsung Galaxy S8",
+      "year_device_style": "2017 Android",
+      "aspect_ratio": "4:3",
+      "capture_intent": "functional document photo",
+      "quality": "photorealistic handheld operational capture",
+      "compression_artifacts": "light jpeg",
+      "older_phone_dynamic_range": true,
+      "slight_handheld_motion": false
+    },
+    "scene": {
+      "framing": "document-dominant close capture",
+      "document_coverage": "90% of frame",
+      "background_visibility": "minimal edge-only context",
+      "background": "blurred warehouse hints only at edges"
+    },
+    "subject": { ... },
+    "capture_style": { ... },
+    "photo_characteristics": { ... }
+  },
+  "folded_skewed": { ... },
+  "zoomed_detail": { ... },
+  "blurry": { ... },
+  "cropped_header": { ... },
+  "strong_oblique": { ... },
+  "coffee_stain": { ... },
+  "stapled_stack": { ... }
+}
+```
+
+## List Templates
+
+```
+GET /templates
+```
+
+Returns the names of all available document templates.
+
+### Example
+
+```bash
+curl http://localhost:8000/templates
+```
+
+```json Response
+[
+  "guia_despacho.html"
+]
+```

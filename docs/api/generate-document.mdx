@@ -1,0 +1,199 @@
+---
+title: "POST /generate/document"
+description: "Generate a PDF and PNG document from structured JSON data."
+icon: "file-pdf"
+---
+
+## Endpoint
+
+```
+POST /generate/document
+```
+
+Generate HTML, PNG, and PDF files from a structured document definition.
+
+## Request Body
+
+<ParamField body="header" type="object" required>
+  Document header fields.
+  <Expandable>
+    <ParamField body="doc_type" type="string" default="guia_despacho">
+      Document template type: `guia_despacho`, `factura`, `purchase_order`, `bill_of_lading`
+    </ParamField>
+    <ParamField body="doc_number" type="string">
+      Document number
+    </ParamField>
+    <ParamField body="date" type="string">
+      Document date (DD/MM/YYYY)
+    </ParamField>
+    <ParamField body="emitter_name" type="string">
+      Emitter company name
+    </ParamField>
+    <ParamField body="emitter_rut" type="string">
+      Emitter tax ID
+    </ParamField>
+    <ParamField body="emitter_giro" type="string">
+      Emitter business activity
+    </ParamField>
+    <ParamField body="emitter_address" type="string">
+      Emitter address
+    </ParamField>
+    <ParamField body="emitter_phone" type="string">
+      Emitter phone
+    </ParamField>
+    <ParamField body="emitter_email" type="string">
+      Emitter email
+    </ParamField>
+    <ParamField body="receiver_name" type="string">
+      Receiver company name
+    </ParamField>
+    <ParamField body="receiver_rut" type="string">
+      Receiver tax ID
+    </ParamField>
+    <ParamField body="receiver_giro" type="string">
+      Receiver business activity
+    </ParamField>
+    <ParamField body="receiver_address" type="string">
+      Receiver address
+    </ParamField>
+    <ParamField body="receiver_contact" type="string">
+      Receiver contact person
+    </ParamField>
+    <ParamField body="oc_number" type="string">
+      Purchase order number
+    </ParamField>
+    <ParamField body="oc_date" type="string">
+      Purchase order date
+    </ParamField>
+    <ParamField body="payment_terms" type="string">
+      Payment terms
+    </ParamField>
+    <ParamField body="dispatch_date" type="string">
+      Dispatch date
+    </ParamField>
+    <ParamField body="vehicle_plate" type="string">
+      Vehicle license plate
+    </ParamField>
+    <ParamField body="driver_name" type="string">
+      Driver name
+    </ParamField>
+    <ParamField body="driver_rut" type="string">
+      Driver tax ID
+    </ParamField>
+    <ParamField body="sii_office" type="string">
+      SII regional office
+    </ParamField>
+    <ParamField body="sii_resolution" type="string">
+      SII authorization resolution
+    </ParamField>
+    <ParamField body="received_by" type="string">
+      Person who received goods
+    </ParamField>
+    <ParamField body="received_rut" type="string">
+      Receiver personal tax ID
+    </ParamField>
+    <ParamField body="received_date" type="string">
+      Date of receipt
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="items" type="array" required>
+  List of line items.
+  <Expandable>
+    <ParamField body="code" type="string">
+      Product code
+    </ParamField>
+    <ParamField body="description" type="string" required>
+      Product description
+    </ParamField>
+    <ParamField body="qty" type="number" required>
+      Quantity
+    </ParamField>
+    <ParamField body="unit" type="string" required>
+      Unit of measure
+    </ParamField>
+    <ParamField body="unit_price" type="number" default={0}>
+      Price per unit
+    </ParamField>
+    <ParamField body="total" type="number" default={0}>
+      Line total
+    </ParamField>
+    <ParamField body="batch" type="string">
+      Batch/lot number
+    </ParamField>
+    <ParamField body="sap_material" type="string">
+      SAP material number
+    </ParamField>
+    <ParamField body="sap_qty" type="number">
+      SAP quantity
+    </ParamField>
+    <ParamField body="sap_unit" type="string">
+      SAP unit of measure
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="observations" type="string" default="">
+  Handwritten notes / observations
+</ParamField>
+
+<ParamField body="template" type="string" default="guia_despacho.html">
+  Template file name
+</ParamField>
+
+## Response
+
+<ResponseField name="run_id" type="string">
+  Unique identifier for this generation run
+</ResponseField>
+
+<ResponseField name="files" type="object">
+  <Expandable>
+    <ResponseField name="html" type="string">
+      Path to generated HTML file
+    </ResponseField>
+    <ResponseField name="png" type="string">
+      Path to generated PNG file
+    </ResponseField>
+    <ResponseField name="pdf" type="string">
+      Path to generated PDF file
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```bash
+curl -X POST http://localhost:8000/generate/document \
+  -H "Content-Type: application/json" \
+  -d '{
+    "header": {
+      "doc_type": "guia_despacho",
+      "doc_number": "00054321",
+      "date": "15/04/2026",
+      "emitter_name": "ACME FOODS S.A.",
+      "receiver_name": "DISTRIBUIDORA CENTRAL LTDA."
+    },
+    "items": [
+      {
+        "description": "HARINA DE TRIGO PREMIUM 25KG",
+        "qty": 40,
+        "unit": "UN",
+        "unit_price": 12500,
+        "total": 500000
+      }
+    ]
+  }'
+```
+
+```json Response
+{
+  "run_id": "a1b2c3d4e5",
+  "files": {
+    "html": "output/a1b2c3d4e5/guia_despacho_00054321.html",
+    "png": "output/a1b2c3d4e5/guia_despacho_00054321.png",
+    "pdf": "output/a1b2c3d4e5/guia_despacho_00054321.pdf"
+  }
+}
+```

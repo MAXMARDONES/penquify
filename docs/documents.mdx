@@ -1,0 +1,149 @@
+---
+title: "Documents"
+description: "The Document model: DocHeader, DocItem, templates, and JSON schema."
+icon: "file-lines"
+---
+
+## Document Model
+
+Every document in penquify consists of three parts:
+
+```
+Document
+  +-- header: DocHeader     # metadata, emitter, receiver, references
+  +-- items: [DocItem]      # line items with quantities and prices
+  +-- observations: str     # handwritten notes (simulated)
+```
+
+## DocHeader
+
+The header contains all metadata fields for a logistics document. Every field beyond `doc_type`, `doc_number`, and `date` is optional (defaults to empty string).
+
+<AccordionGroup>
+  <Accordion title="Core Fields">
+    | Field | Type | Description |
+    |-------|------|-------------|
+    | `doc_type` | `str` | Template type: `guia_despacho`, `factura`, `purchase_order`, `bill_of_lading` |
+    | `doc_number` | `str` | Document number |
+    | `date` | `str` | Date string (YYYY-MM-DD or DD/MM/YYYY for display) |
+  </Accordion>
+  <Accordion title="Emitter Fields">
+    | Field | Type | Description |
+    |-------|------|-------------|
+    | `emitter_name` | `str` | Company name |
+    | `emitter_rut` | `str` | Tax ID (Chilean RUT format) |
+    | `emitter_giro` | `str` | Business activity |
+    | `emitter_address` | `str` | Address |
+    | `emitter_phone` | `str` | Phone number |
+    | `emitter_email` | `str` | Email |
+  </Accordion>
+  <Accordion title="Receiver Fields">
+    | Field | Type | Description |
+    |-------|------|-------------|
+    | `receiver_name` | `str` | Company name |
+    | `receiver_rut` | `str` | Tax ID |
+    | `receiver_giro` | `str` | Business activity |
+    | `receiver_address` | `str` | Address |
+    | `receiver_contact` | `str` | Contact person |
+  </Accordion>
+  <Accordion title="Reference Fields">
+    | Field | Type | Description |
+    |-------|------|-------------|
+    | `oc_number` | `str` | Purchase order number |
+    | `oc_date` | `str` | Purchase order date |
+    | `payment_terms` | `str` | Payment terms |
+    | `solpe_number` | `str` | SAP SolPe number |
+  </Accordion>
+  <Accordion title="Dispatch Fields (Guia)">
+    | Field | Type | Description |
+    |-------|------|-------------|
+    | `dispatch_date` | `str` | Dispatch date |
+    | `vehicle_plate` | `str` | Vehicle license plate |
+    | `driver_name` | `str` | Driver name |
+    | `driver_rut` | `str` | Driver tax ID |
+    | `transport_type` | `str` | Transport type (default: `"Venta"`) |
+    | `temperature` | `str` | Temperature at dispatch |
+  </Accordion>
+  <Accordion title="SII / Sign-off Fields">
+    | Field | Type | Description |
+    |-------|------|-------------|
+    | `sii_office` | `str` | SII regional office |
+    | `sii_resolution` | `str` | SII authorization resolution |
+    | `received_by` | `str` | Person who received the goods |
+    | `received_rut` | `str` | Receiver's personal tax ID |
+    | `received_date` | `str` | Date of receipt |
+  </Accordion>
+</AccordionGroup>
+
+## DocItem
+
+Each line item in the document.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `pos` | `int` | -- | Line position (1-based) |
+| `code` | `str` | -- | Product/material code |
+| `description` | `str` | -- | Product description |
+| `qty` | `float` | -- | Quantity |
+| `unit` | `str` | -- | Unit of measure (UN, KG, CJ, L, etc.) |
+| `unit_price` | `float` | `0` | Price per unit |
+| `total` | `float` | `0` | Line total |
+| `batch` | `str` | `""` | Batch/lot number |
+| `sap_material` | `str` | `""` | SAP material number |
+| `sap_qty` | `float` | `0` | SAP quantity (may differ from document qty) |
+| `sap_unit` | `str` | `""` | SAP unit of measure |
+
+## Computed Properties
+
+The `Document` class computes totals automatically:
+
+```python
+doc.subtotal  # sum of item totals (or qty * unit_price)
+doc.iva       # subtotal * 0.19 (Chilean VAT)
+doc.total     # subtotal + iva
+```
+
+## JSON Schema
+
+A complete document as JSON:
+
+```json
+{
+  "header": {
+    "doc_type": "guia_despacho",
+    "doc_number": "00054321",
+    "date": "15/04/2026",
+    "emitter_name": "ACME FOODS S.A.",
+    "emitter_rut": "76.123.456-7",
+    "emitter_address": "Av. Industrial 1200, Santiago",
+    "receiver_name": "DISTRIBUIDORA CENTRAL LTDA.",
+    "receiver_rut": "77.987.654-3",
+    "oc_number": "4500001234",
+    "vehicle_plate": "ABCD-12",
+    "driver_name": "Juan Perez"
+  },
+  "items": [
+    {
+      "pos": 1,
+      "code": "AF-1001",
+      "description": "HARINA DE TRIGO PREMIUM 25KG",
+      "qty": 40,
+      "unit": "UN",
+      "unit_price": 12500,
+      "total": 500000
+    }
+  ],
+  "observations": "1 pallet. Lote 2026-03."
+}
+```
+
+## Template System
+
+Documents are rendered to HTML using Jinja2 templates. The default template is `guia_despacho.html` (Chilean dispatch guide). Templates receive the full document dict via `doc.to_dict()`:
+
+- `header.*` -- all header fields
+- `items[]` -- array of item dicts
+- `observations` -- observation text
+- `subtotal`, `iva`, `total` -- computed values
+
+Templates are standard HTML+CSS files stored in `penquify/templates/`. See the [Custom Template](/custom-template) guide to create your own.

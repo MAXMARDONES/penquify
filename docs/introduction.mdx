@@ -1,0 +1,63 @@
+---
+title: "Introduction"
+description: "Photorealistic smartphone photos of logistics documents, from structured data, with ground-truth verification."
+icon: "book-open"
+---
+
+# What is Penquify?
+
+Penquify is an open-source Python toolkit that generates photorealistic smartphone photos of logistics documents (dispatch guides, invoices, purchase orders) from structured data, complete with ground-truth verification for every generated image.
+
+## The Problem
+
+Testing vision pipelines, OCR systems, and document-processing agents requires real document photos -- with all the imperfections of operational captures: skew, blur, stains, folds, hand shadows, JPEG compression. Collecting these at scale is slow, expensive, and privacy-sensitive. Synthetic datasets exist, but they look synthetic.
+
+## The Solution
+
+Penquify bridges the gap between structured data and realistic operational photography:
+
+<CardGroup cols={2}>
+  <Card title="Structured Data In" icon="database">
+    Define documents with JSON: header fields, line items, totals. Or upload an existing PDF.
+  </Card>
+  <Card title="Realistic Photos Out" icon="camera">
+    Get photorealistic smartphone photos with configurable imperfections -- blur, stains, folds, glare, crop.
+  </Card>
+  <Card title="Ground Truth Built In" icon="check-double">
+    Every photo ships with a verification result and occlusion manifest explaining which fields are visible, illegible, or hidden.
+  </Card>
+  <Card title="Multiple Interfaces" icon="plug">
+    CLI, Python library, REST API, MCP server for Claude, Agent SDK plugin.
+  </Card>
+</CardGroup>
+
+## How It Works
+
+<Steps>
+  <Step title="Define or upload a document">
+    Provide structured data (JSON) or upload a PDF/image. Penquify renders it to a clean HTML template, then screenshots it to PNG and PDF.
+  </Step>
+  <Step title="Configure photo variations">
+    Choose from 8 built-in presets or define custom variations: camera model, angle, blur, stains, folds, crop, hand presence.
+  </Step>
+  <Step title="Generate photos via Gemini">
+    Each variation is sent to Google Gemini's image generation model with a fixed system instruction that enforces photorealistic operational capture style.
+  </Step>
+  <Step title="Verify against ground truth">
+    A separate vision model blindly extracts fields from the generated photo. The extracted values are compared programmatically against the source data. Mismatches trigger retries. Intentional occlusions are documented in the occlusion manifest.
+  </Step>
+</Steps>
+
+## Quick Example
+
+```bash
+pip install penquify
+export GEMINI_API_KEY=your-key
+penquify demo
+```
+
+This generates a demo dispatch guide with 7 line items, renders it to PDF/PNG, then produces 8 photo variations with different imperfections.
+
+## Built By
+
+Penquify is built by [Max Mardones](https://github.com/MAXMARDONES), CEO @ [getsmartup.ai](https://getsmartup.ai).

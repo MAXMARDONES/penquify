@@ -1,0 +1,127 @@
+---
+title: "Verification"
+description: "Blind extraction, programmatic comparison, retry loop -- how penquify ensures photo accuracy."
+icon: "shield-check"
+---
+
+## The Verification Pipeline
+
+Penquify's verification system ensures that generated photos contain the correct document data. The key design principle: **the extraction model never sees ground truth values**.
+
+<Steps>
+  <Step title="Generate photo">
+    Gemini generates a photorealistic image from the clean document + variation config.
+  </Step>
+  <Step title="Blind extraction">
+    A separate Gemini 2.5 Flash call receives the generated photo and a list of field names. It extracts values with confidence scores. It does NOT know the expected values.
+  </Step>
+  <Step title="Programmatic comparison">
+    Extracted values are compared against the source schema in Python code. No model is involved. Values are normalized (strip whitespace, lowercase, remove `$`, commas, dots).
+  </Step>
+  <Step title="Classify results">
+    Each field gets a status:
+    - `match` -- extracted value matches ground truth
+    - `mismatch` -- extracted value differs (image gen error)
+    - `illegible` -- model can't read it (confidence below 0.5)
+    - `not_visible` -- field not in frame (cropped, occluded)
+  </Step>
+  <Step title="Retry on mismatch">
+    Mismatches indicate the image generator rendered text incorrectly. Penquify retries up to N times, emphasizing the wrong fields in the prompt.
+  </Step>
+</Steps>
+
+<Warning>
+Only `mismatch` triggers retries. `illegible` and `not_visible` are expected outcomes of intentional variation effects (blur, crop, stains) and are documented in the occlusion manifest.
+</Warning>
+
+## Extraction Prompt
+
+The extraction model receives:
+- The generated photo
+- A JSON list of field names to look for
+
+For each field, it returns:
+- `value` -- what it read (or `null`)
+- `confidence` -- 0.0 to 1.0
+- `reason` -- `null`, `"blurry"`, `"cropped"`, `"occluded"`, or `"not_in_frame"`
+
+```json
+{
+  "extractions": {
+    "doc_number": {
+      "value": "01182034",
+      "confidence": 0.95,
+      "reason": null
+    },
+    "emitter_name": {
+      "value": null,
+      "confidence": 0.0,
+      "reason": "cropped"
+    }
+  }
+}
+```
+
+## Comparison Logic
+
+Comparison is pure Python -- no model involved:
+
+```python
+def _normalize(val: str) -> str:
+    s = str(val).strip().lower()
+    s = s.replace("$", "").replace(",", "").replace(".", "").strip()
+    return s
+```
+
+| Condition | Status |
+|-----------|--------|
+| `value is None` or `confidence == 0` + reason is `cropped`/`not_in_frame` | `not_visible` |
+| `value is None` or `confidence == 0` + other reason | `illegible` |
+| `confidence < 0.5` | `illegible` |
+| `normalize(extracted) == normalize(expected)` | `match` |
+| Otherwise | `mismatch` |
+
+## Verification Result
+
+```json
+{
+  "fields": {
+    "doc_number": {
+      "source_value": "01182034",
+      "extracted_value": "01182034",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    }
+  },
+  "summary": {
+    "total_fields": 25,
+    "matched": 20,
+    "mismatched": 0,
+    "illegible": 3,
+    "not_visible": 2
+  }
+}
+```
+
+## Verified Generation
+
+The `generate_verified_photo()` function combines generation + verification + retry:
+
+1. Generate photo
+2. Verify against schema
+3. If mismatches exist and retries remain, regenerate with emphasis on wrong fields
+4. Return result with `verified: true/false`, attempt count, verification details, and occlusion manifest
+
+```python
+result = await generate_verified_photo(
+    reference_image_path="output/doc.png",
+    variation=PhotoVariation(name="full_picture"),
+    output_path="output/photo_full.png",
+    schema={"doc_number": "01182034", "emitter_name": "ACME FOODS S.A."},
+    max_retries=3,
+)
+# result["verified"] == True
+# result["attempts"] == 1
+# result["occlusion_manifest"]["doc_number"] == "visible"
+```

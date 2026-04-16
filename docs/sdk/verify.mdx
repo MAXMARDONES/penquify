@@ -1,0 +1,130 @@
+---
+title: "Verification Functions"
+description: "SDK reference for extraction, comparison, and occlusion manifest building."
+icon: "shield-check"
+---
+
+## Module
+
+```python
+from penquify.generators.verify import (
+    extract_fields,
+    compare_against_ground_truth,
+    build_occlusion_manifest,
+    verify_ground_truth,
+    generate_verified_photo,
+    generate_verified_dataset,
+)
+```
+
+## extract_fields
+
+```python
+async def extract_fields(
+    image_path: str,                    # Path to the photo
+    field_names: list[str],             # Field names to look for
+    api_key: Optional[str] = None,
+) -> dict
+```
+
+Blind extraction -- the model reads the photo without knowing expected values. Uses Gemini 2.5 Flash with `application/json` response.
+
+**Returns:**
+```python
+{
+    "extractions": {
+        "field_name": {
+            "value": str | None,       # What the model read
+            "confidence": float,        # 0.0 - 1.0
+            "reason": str | None,       # null, "blurry", "cropped", "occluded", "not_in_frame"
+        }
+    }
+}
+```
+
+## compare_against_ground_truth
+
+```python
+def compare_against_ground_truth(
+    extractions: dict,    # Output from extract_fields()
+    schema: dict,         # field_name -> expected_value
+) -> dict
+```
+
+Pure Python comparison -- no model involved. Normalizes values by stripping whitespace, lowercasing, and removing `$`, `,`, `.` characters.
+
+**Returns:**
+```python
+{
+    "fields": {
+        "field_name": {
+            "source_value": str,
+            "extracted_value": str | None,
+            "status": "match" | "mismatch" | "illegible" | "not_visible",
+            "confidence": float,
+            "extraction_reason": str | None,
+        }
+    },
+    "summary": {
+        "total_fields": int,
+        "matched": int,
+        "mismatched": int,
+        "illegible": int,
+        "not_visible": int,
+    }
+}
+```
+
+**Status classification logic:**
+
+| Condition | Status |
+|-----------|--------|
+| `value is None` or `confidence == 0`, reason is `cropped`/`not_in_frame` | `not_visible` |
+| `value is None` or `confidence == 0`, other reason | `illegible` |
+| `confidence < 0.5` | `illegible` |
+| Normalized values match | `match` |
+| Otherwise | `mismatch` |
+
+## build_occlusion_manifest
+
+```python
+def build_occlusion_manifest(
+    verification: dict,         # Output from compare_against_ground_truth()
+    variation: PhotoVariation,  # The variation config used to generate the photo
+) -> dict
+```
+
+Cross-reference failed fields with variation config to explain why each field is or isn't visible.
+
+**Returns:** Dict of `field_name` -> `"visible"` or:
+```python
+{
+    "status": "not_visible" | "illegible" | "mismatch",
+    "extracted": str | None,
+    "expected": str,
+    "confidence": float,
+    "reasons": ["occluded_by_crop(header)", ...],
+}
+```
+
+## verify_ground_truth
+
+```python
+async def verify_ground_truth(
+    image_path: str,
+    schema: dict,               # field_name -> expected_value
+    api_key: Optional[str] = None,
+) -> dict
+```
+
+Full verification pipeline: blind extract then programmatic compare. The vision model never sees expected values.
+
+**Returns:** Same format as `compare_against_ground_truth()`.
+
+## generate_verified_photo
+
+See [Generators](/sdk/generators#generate_verified_photo).
+
+## generate_verified_dataset
+
+See [Generators](/sdk/generators#generate_verified_dataset).

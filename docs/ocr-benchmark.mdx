@@ -1,0 +1,113 @@
+---
+title: "OCR Benchmarking"
+description: "Generate controlled datasets to benchmark OCR and document extraction models."
+icon: "chart-bar"
+---
+
+## Overview
+
+Penquify was designed for OCR benchmarking. Generate documents with known data, apply controlled degradations, and compare your model's extractions against ground truth -- with the occlusion manifest telling you which fields are fairly testable.
+
+## Benchmarking Workflow
+
+<Steps>
+  <Step title="Define documents with known data">
+    Create documents where every field value is known (the ground truth).
+  </Step>
+  <Step title="Generate photos with controlled variations">
+    Apply specific presets to create photos with known degradation levels.
+  </Step>
+  <Step title="Run your model">
+    Feed the generated photos to your OCR/extraction model.
+  </Step>
+  <Step title="Compare against ground truth">
+    Use the ground truth JSON and occlusion manifest to score your model.
+  </Step>
+</Steps>
+
+## Example: Benchmark Matrix
+
+```python
+import asyncio
+import json
+from penquify.models import Document, DocHeader, DocItem
+from penquify.generators.pdf import generate_document_files
+from penquify.generators.verify import generate_verified_dataset
+
+# Define 3 difficulty levels
+EASY_PRESETS = ["full_picture", "zoomed_detail"]
+MEDIUM_PRESETS = ["folded_skewed", "strong_oblique"]
+HARD_PRESETS = ["blurry", "cropped_header", "coffee_stain"]
+
+async def benchmark():
+    doc = Document(
+        header=DocHeader(
+            doc_type="guia_despacho",
+            doc_number="BENCH-001",
+            date="01/01/2026",
+            emitter_name="ACME BENCHMARK CORP.",
+            emitter_rut="76.000.000-0",
+            receiver_name="TEST RECEIVER S.A.",
+        ),
+        items=[
+            DocItem(pos=1, code="B-001", description="ITEM ALPHA",
+                    qty=100, unit="UN", unit_price=1000, total=100000),
+            DocItem(pos=2, code="B-002", description="ITEM BETA",
+                    qty=50, unit="KG", unit_price=2500, total=125000),
+        ],
+    )
+
+    files = await generate_document_files(doc, "benchmark/source")
+
+    for level, presets in [("easy", EASY_PRESETS), ("medium", MEDIUM_PRESETS), ("hard", HARD_PRESETS)]:
+        results = await generate_verified_dataset(
+            reference_image_path=files["png"],
+            document=doc,
+            output_dir=f"benchmark/{level}",
+            preset_names=presets,
+            max_retries=3,
+        )
+        verified = sum(1 for r in results if r.get("verified"))
+        print(f"{level}: {verified}/{len(results)} verified")
+
+asyncio.run(benchmark())
+```
+
+## Scoring Your Model
+
+Load the ground truth and occlusion manifest, then score:
+
+```python
+import json
+
+# Load penquify outputs
+ground_truth = json.load(open("benchmark/easy/ground_truth.json"))
+manifest = json.load(open("benchmark/easy/photo_full_picture_occlusion.json"))
+
+# Your model's extractions
+my_extractions = your_ocr_model("benchmark/easy/photo_full_picture.png")
+
+# Score only visible fields (fair test)
+visible_fields = [k for k, v in manifest.items() if v == "visible"]
+correct = sum(1 for f in visible_fields
+              if normalize(my_extractions.get(f, "")) == normalize(ground_truth[f]))
+
+accuracy = correct / len(visible_fields) if visible_fields else 0
+print(f"Accuracy on visible fields: {accuracy:.1%}")
+
+# Check if model hallucinates on occluded fields
+occluded_fields = [k for k, v in manifest.items() if v != "visible"]
+hallucinations = sum(1 for f in occluded_fields
+                     if my_extractions.get(f) is not None)
+print(f"Hallucinations on occluded fields: {hallucinations}/{len(occluded_fields)}")
+```
+
+## Metrics to Track
+
+| Metric | Description |
+|--------|-------------|
+| **Visible field accuracy** | Correct extractions / total visible fields |
+| **Partial read rate** | Partially correct extractions on illegible fields |
+| **Hallucination rate** | Non-null extractions on occluded/not_visible fields |
+| **Degradation curve** | Accuracy across easy -> medium -> hard presets |
+| **Per-field robustness** | Which fields are most sensitive to degradation |

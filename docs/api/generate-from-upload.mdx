@@ -1,0 +1,108 @@
+---
+title: "POST /generate/from-upload"
+description: "Upload a PDF or image, auto-detect schema, and generate verified photo variations."
+icon: "upload"
+---
+
+## Endpoint
+
+```
+POST /generate/from-upload
+```
+
+Upload an existing document (PDF or image), detect its schema using vision AI, and generate verified photo variations.
+
+## Request
+
+This endpoint uses `multipart/form-data`.
+
+<ParamField body="file" type="file" required>
+  PDF or image file (PNG, JPG) to upload.
+</ParamField>
+
+<ParamField query="presets" type="string" default="full_picture,folded_skewed,blurry">
+  Comma-separated list of preset names.
+</ParamField>
+
+## Response
+
+<ResponseField name="run_id" type="string">
+  Unique identifier for this generation run
+</ResponseField>
+
+<ResponseField name="detected_schema" type="object">
+  Schema detected from the uploaded document.
+  <Expandable>
+    <ResponseField name="document_type" type="string">
+      Detected type: `dispatch_guide`, `invoice`, `purchase_order`, `bill_of_lading`, `credit_note`, `other`
+    </ResponseField>
+    <ResponseField name="header" type="object">
+      Detected header fields
+    </ResponseField>
+    <ResponseField name="items" type="array">
+      Detected line items
+    </ResponseField>
+    <ResponseField name="totals" type="object">
+      Detected totals (subtotal, tax, total)
+    </ResponseField>
+    <ResponseField name="confidence" type="number">
+      Detection confidence (0.0 - 1.0)
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="ground_truth" type="object">
+  Flattened field_name -> value dict used for verification.
+</ResponseField>
+
+<ResponseField name="photos" type="array">
+  Array of verified photo results.
+  <Expandable>
+    <ResponseField name="image_path" type="string">Path to generated photo</ResponseField>
+    <ResponseField name="verified" type="boolean">Whether all visible fields match</ResponseField>
+    <ResponseField name="attempts" type="integer">Number of generation attempts</ResponseField>
+    <ResponseField name="verification" type="object">Per-field verification results</ResponseField>
+    <ResponseField name="occlusion_manifest" type="object">Occlusion reasons per field</ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```bash
+curl -X POST http://localhost:8000/generate/from-upload \
+  -F "file=@/path/to/invoice.pdf" \
+  -F "presets=full_picture,blurry"
+```
+
+```json Response
+{
+  "run_id": "h8i9j0k1l2",
+  "detected_schema": {
+    "document_type": "dispatch_guide",
+    "header": {
+      "doc_number": "00098765",
+      "emitter_name": "ACME FOODS S.A."
+    },
+    "items": [
+      {"pos": 1, "description": "HARINA DE TRIGO", "qty": 40, "unit": "UN"}
+    ],
+    "totals": {"subtotal": 500000, "tax": 95000, "total": 595000},
+    "confidence": 0.93
+  },
+  "ground_truth": {
+    "doc_number": "00098765",
+    "emitter_name": "ACME FOODS S.A.",
+    "item_1_description": "HARINA DE TRIGO",
+    "item_1_qty": "40",
+    "subtotal": "500000",
+    "total": "595000"
+  },
+  "photos": [
+    {
+      "image_path": "output/h8i9j0k1l2/photo_full_picture.png",
+      "verified": true,
+      "attempts": 1
+    }
+  ]
+}
+```

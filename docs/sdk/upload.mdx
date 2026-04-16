@@ -1,0 +1,132 @@
+---
+title: "Upload Functions"
+description: "SDK reference for PDF upload, schema detection, and the upload pipeline."
+icon: "upload"
+---
+
+## Module
+
+```python
+from penquify.generators.upload import (
+    detect_schema_from_image,
+    pdf_to_image,
+    schema_to_flat,
+    upload_and_generate,
+)
+```
+
+## detect_schema_from_image
+
+```python
+async def detect_schema_from_image(
+    image_path: str,
+    api_key: Optional[str] = None,
+) -> dict
+```
+
+Detect document schema from a PDF/image using Gemini 2.5 Flash vision. Extracts document type, header fields, line items, totals, and a confidence score.
+
+**Returns:**
+```python
+{
+    "document_type": "dispatch_guide" | "invoice" | "purchase_order" | "bill_of_lading" | "credit_note" | "other",
+    "header": {
+        "doc_number": "...",
+        "date": "...",
+        "emitter_name": "...",
+        ...
+    },
+    "items": [
+        {"pos": 1, "code": "...", "description": "...", "qty": float, "unit": "...", "unit_price": float, "total": float}
+    ],
+    "totals": {
+        "subtotal": float,
+        "tax": float,
+        "total": float,
+    },
+    "observations": "...",
+    "confidence": float,  # 0.0 - 1.0
+}
+```
+
+## pdf_to_image
+
+```python
+async def pdf_to_image(pdf_path: str, output_path: str) -> str
+```
+
+Convert the first page of a PDF to PNG using Playwright (900x1270 viewport). Returns `output_path`.
+
+## schema_to_flat
+
+```python
+def schema_to_flat(detected: dict) -> dict
+```
+
+Convert a detected schema (from `detect_schema_from_image()`) to a flat `field_name -> value` dict suitable for the verification pipeline.
+
+Flattening rules:
+- `header.field_name` -> `field_name`
+- `items[i].field_name` -> `item_{i+1}_field_name`
+- `totals.field_name` -> `field_name`
+- `observations` -> `observations`
+- `None` values are omitted
+
+**Example:**
+```python
+detected = {
+    "header": {"doc_number": "00054321", "emitter_name": "ACME"},
+    "items": [{"pos": 1, "description": "HARINA", "qty": 40, "unit": "UN"}],
+    "totals": {"subtotal": 500000, "total": 595000},
+}
+
+flat = schema_to_flat(detected)
+# {
+#     "doc_number": "00054321",
+#     "emitter_name": "ACME",
+#     "item_1_pos": "1",
+#     "item_1_description": "HARINA",
+#     "item_1_qty": "40",
+#     "item_1_unit": "UN",
+#     "subtotal": "500000",
+#     "total": "595000",
+# }
+```
+
+## upload_and_generate
+
+```python
+async def upload_and_generate(
+    input_path: str,                        # Path to PDF or image
+    output_dir: str = "output/uploaded",
+    preset_names: list[str] = None,         # Default: full_picture, folded_skewed, blurry
+    max_retries: int = 2,
+    api_key: Optional[str] = None,
+) -> dict
+```
+
+Full upload pipeline: input file -> schema detection -> verified photo generation.
+
+**Pipeline:**
+1. If PDF, convert to image via `pdf_to_image()`
+2. Detect schema via `detect_schema_from_image()`
+3. Save `detected_schema.json` and `ground_truth.json`
+4. Generate verified photos for each preset
+5. Save per-image `_verification.json` and `_occlusion.json`
+
+**Returns:**
+```python
+{
+    "detected_schema": dict,   # Full detected schema
+    "ground_truth": dict,      # Flat field -> value dict
+    "photos": [                # List of verified photo results
+        {
+            "image_path": str,
+            "verified": bool,
+            "attempts": int,
+            "verification": dict,
+            "occlusion_manifest": dict,
+        }
+    ],
+}
+```

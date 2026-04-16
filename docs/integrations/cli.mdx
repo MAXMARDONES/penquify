@@ -1,0 +1,124 @@
+---
+title: "CLI Reference"
+description: "Full command-line interface reference for penquify."
+icon: "terminal"
+---
+
+## Usage
+
+```bash
+penquify <command> [options]
+```
+
+## Commands
+
+### demo
+
+Generate a complete demo dispatch guide with photo variations.
+
+```bash
+penquify demo [--output DIR] [--presets PRESET...]
+```
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--output`, `-o` | `output` | Output directory |
+| `--presets` | all 8 presets | Space-separated preset names |
+
+Generates a 7-item dispatch guide from ACME data, renders to HTML/PNG/PDF, then generates photo variations.
+
+```bash
+# Full demo with all presets
+penquify demo
+
+# Demo with specific presets
+penquify demo --presets full_picture blurry coffee_stain
+
+# Demo to custom directory
+penquify demo --output my-demo/
+```
+
+### pdf
+
+Generate PDF/PNG from a document JSON file (no photo generation).
+
+```bash
+penquify pdf [--doc-json FILE] [--output DIR]
+```
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--doc-json` | (uses demo doc) | Path to document JSON file |
+| `--output`, `-o` | `output` | Output directory |
+
+```bash
+# From JSON file
+penquify pdf --doc-json my-document.json --output docs/
+
+# Demo document only (no photos)
+penquify pdf
+```
+
+### photos
+
+Generate photo variations from an existing PNG image.
+
+```bash
+penquify photos --image FILE [--output DIR] [--presets PRESET...]
+```
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--image` | (required) | Path to source document image (PNG) |
+| `--output`, `-o` | `output` | Output directory |
+| `--presets` | all 8 presets | Space-separated preset names |
+
+```bash
+# Generate all presets
+penquify photos --image output/guia_despacho_00054321.png
+
+# Specific presets
+penquify photos --image doc.png --presets full_picture blurry --output photos/
+```
+
+### upload
+
+Upload a PDF or image, detect schema, and generate verified photo variations.
+
+```bash
+penquify upload --image FILE [--output DIR] [--presets PRESET...]
+```
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--image` | (required) | Path to PDF or image file |
+| `--output`, `-o` | `output` | Output directory |
+| `--presets` | `full_picture`, `folded_skewed`, `blurry` | Space-separated preset names |
+
+```bash
+# Upload a PDF
+penquify upload --image invoice.pdf --output uploaded/
+
+# Upload with custom presets
+penquify upload --image receipt.jpg --presets full_picture coffee_stain
+```
+
+## Available Presets
+
+| Name | Description |
+|------|-------------|
+| `full_picture` | Clean photo, 90% coverage, slight angle |
+| `folded_skewed` | Dog ear folds, strong curvature, moderate skew |
+| `zoomed_detail` | 95% coverage, tight crop |
+| `blurry` | Motion blur, overall soft focus |
+| `cropped_header` | Top 10-15% cut off |
+| `strong_oblique` | 45 degree angle, strong skew |
+| `coffee_stain` | Coffee stain with partial text obstruction |
+| `stapled_stack` | Stapled with sheets behind |
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `GEMINI_API_KEY` | Required for photo generation and verification |
+| `PENQUIFY_OUTPUT` | Default output directory (overridden by `--output`) |

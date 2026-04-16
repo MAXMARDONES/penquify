@@ -1,0 +1,115 @@
+---
+title: "Document Classes"
+description: "SDK reference for Document, DocHeader, and DocItem."
+icon: "file-lines"
+---
+
+## Module
+
+```python
+from penquify.models.document import Document, DocHeader, DocItem
+# or
+from penquify.models import Document, DocHeader, DocItem
+```
+
+## DocItem
+
+```python
+@dataclass
+class DocItem:
+    pos: int              # Line position (1-based)
+    code: str             # Product/material code
+    description: str      # Product description
+    qty: float            # Quantity
+    unit: str             # Unit of measure (UN, KG, CJ, L, etc.)
+    unit_price: float = 0 # Price per unit
+    total: float = 0      # Line total
+    batch: str = ""       # Batch/lot number
+    sap_material: str = ""  # SAP material number (cross-system linking)
+    sap_qty: float = 0     # SAP quantity (may differ from doc qty)
+    sap_unit: str = ""     # SAP unit of measure
+```
+
+## DocHeader
+
+```python
+@dataclass
+class DocHeader:
+    # Required
+    doc_type: str     # guia_despacho, factura, purchase_order, bill_of_lading
+    doc_number: str   # Document number
+    date: str         # YYYY-MM-DD or DD/MM/YYYY
+
+    # Emitter (all default to "")
+    emitter_name: str = ""
+    emitter_rut: str = ""
+    emitter_giro: str = ""
+    emitter_address: str = ""
+    emitter_phone: str = ""
+    emitter_email: str = ""
+
+    # Receiver (all default to "")
+    receiver_name: str = ""
+    receiver_rut: str = ""
+    receiver_giro: str = ""
+    receiver_address: str = ""
+    receiver_contact: str = ""
+
+    # References (all default to "")
+    oc_number: str = ""
+    oc_date: str = ""
+    payment_terms: str = ""
+    solpe_number: str = ""
+
+    # Dispatch (all default to "")
+    dispatch_date: str = ""
+    vehicle_plate: str = ""
+    driver_name: str = ""
+    driver_rut: str = ""
+    transport_type: str = "Venta"
+    temperature: str = ""
+
+    # SII (all default to "")
+    sii_office: str = ""
+    sii_resolution: str = ""
+
+    # Sign-off (all default to "")
+    received_by: str = ""
+    received_rut: str = ""
+    received_date: str = ""
+```
+
+## Document
+
+```python
+@dataclass
+class Document:
+    header: DocHeader
+    items: List[DocItem] = field(default_factory=list)
+    observations: str = ""
+```
+
+### Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `subtotal` | `float` | Sum of `item.total` (or `item.qty * item.unit_price`) |
+| `iva` | `float` | `subtotal * 0.19` (Chilean VAT, rounded) |
+| `total` | `float` | `subtotal + iva` |
+
+### Methods
+
+#### `to_dict() -> dict`
+
+Serialize the document for template rendering. Returns:
+
+```python
+{
+    "header": { ... },     # header.__dict__
+    "items": [ ... ],      # [item.__dict__ for item in items]
+    "observations": "...",
+    "subtotal": float,
+    "iva": float,
+    "total": float,
+}
+```

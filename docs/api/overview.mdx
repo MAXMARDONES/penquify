@@ -1,0 +1,65 @@
+---
+title: "API Overview"
+description: "FastAPI REST server for document and photo generation."
+icon: "server"
+---
+
+## Overview
+
+Penquify includes a FastAPI REST server that exposes all generation capabilities over HTTP.
+
+## Starting the Server
+
+```bash
+pip install penquify[api]
+uvicorn penquify.api.server:app --host 0.0.0.0 --port 8000
+```
+
+The server runs at `http://localhost:8000` with auto-generated OpenAPI docs at `/docs`.
+
+## Configuration
+
+| Environment Variable | Default | Description |
+|---------------------|---------|-------------|
+| `GEMINI_API_KEY` | -- | Required for photo generation and verification |
+| `PENQUIFY_OUTPUT` | `output` | Directory for generated files |
+
+## Base URL
+
+```
+http://localhost:8000
+```
+
+## Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/` | Health check, returns name + version |
+| `GET` | `/presets` | List photo variation presets |
+| `GET` | `/templates` | List document templates |
+| `POST` | `/generate/document` | Generate PDF + PNG from JSON |
+| `POST` | `/generate/photos` | Generate photos from an image |
+| `POST` | `/generate/dataset` | Full pipeline: JSON -> PDF -> photos |
+| `POST` | `/generate/from-upload` | Upload PDF/image -> schema detection -> photos |
+| `POST` | `/generate/config` | Natural language -> variation JSON |
+| `GET` | `/documents` | List all generated runs |
+| `GET` | `/documents/{run_id}/{filename}` | Download a file from a run |
+
+## Authentication
+
+No authentication is required by default. Add your own middleware for production deployments.
+
+## Response Format
+
+All endpoints return JSON. File generation endpoints return a `run_id` that can be used to retrieve files:
+
+```json
+{
+  "run_id": "a1b2c3d4e5",
+  "files": {
+    "html": "output/a1b2c3d4e5/guia_despacho_00054321.html",
+    "png": "output/a1b2c3d4e5/guia_despacho_00054321.png",
+    "pdf": "output/a1b2c3d4e5/guia_despacho_00054321.pdf"
+  }
+}
+```
