@@ -1,5 +1,4 @@
 {
-  "$schema": "https://mintlify.com/schema.json",
   "name": "Penquify",
   "logo": {
     "dark": "/logo/dark.svg",
@@ -109,5 +108,6 @@
   ],
   "footerSocials": {
     "github": "https://github.com/MAXMARDONES/penquify"
-  }
+  },
+  "theme": "maple"
 }
