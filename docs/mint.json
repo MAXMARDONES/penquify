@@ -2,9 +2,9 @@
   "theme": "maple",
   "name": "Penquify",
   "colors": {
-    "primary": "#6366F1",
-    "light": "#818CF8",
-    "dark": "#4F46E5"
+    "primary": "#114541",
+    "light": "#1a6b65",
+    "dark": "#0d3330"
   },
   "modeToggle": {
     "default": "dark"

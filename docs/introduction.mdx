@@ -1,33 +1,79 @@
 ---
 title: "Introduction"
-description: "Photorealistic smartphone photos of logistics documents, from structured data, with ground-truth verification."
+description: "OCR in reverse. Structured data in, realistic document photo out — with verified ground truth."
 icon: "book-open"
 ---
 
 # What is Penquify?
 
-Penquify is an open-source Python toolkit that generates photorealistic smartphone photos of logistics documents (dispatch guides, invoices, purchase orders) from structured data, complete with ground-truth verification for every generated image.
+> *From Chilean slang **"penca"** (lousy, worse) — because your document photos should look realistically bad, not studio-perfect.*
+
+Penquify is an open-source Python toolkit that takes structured data and produces photorealistic smartphone photos of printed logistics documents — with coffee stains, folds, blur, skew, and every imperfection that makes real-world document processing hard.
+
+**You don't build the PDF.** You give penquify an OC number, a JSON payload, or upload an existing PDF — and it generates the document, introduces realistic discrepancies, renders it, photographs it, verifies every field, and tells you exactly what's occluded.
+
+<img src="/images/demo_full_picture.jpg" alt="Penquify output: realistic warehouse photo of dispatch guide" style={{borderRadius: '12px', border: '1px solid #27272a'}} />
 
 ## The Problem
 
-Testing vision pipelines, OCR systems, and document-processing agents requires real document photos -- with all the imperfections of operational captures: skew, blur, stains, folds, hand shadows, JPEG compression. Collecting these at scale is slow, expensive, and privacy-sensitive. Synthetic datasets exist, but they look synthetic.
+You're building a vision pipeline — document extraction, agentic workflows, OCR automation. But you have **12 real documents**. You need 1,200 test cases covering blurry, folded, stained, cropped scenarios. And the data in each photo **has to be correct and verifiable** because your agent needs to do downstream lookups.
+
+Scanning the same invoice 50 times doesn't help. Image augmentation (rotate, noise) doesn't produce realistic warehouse photos. And manually photographing documents with different phones, angles, and lighting doesn't scale.
 
 ## The Solution
 
-Penquify bridges the gap between structured data and realistic operational photography:
+```
+ERP purchase order       penquify generates        penquify generates
+(or any JSON/PDF)  ──►   dispatch guide PDF    ──► realistic photos
+                         with supplier jargon,     with verified
+                         unit mismatches,          ground truth +
+                         realistic discrepancies   occlusion manifest
+```
 
 <CardGroup cols={2}>
   <Card title="Structured Data In" icon="database">
-    Define documents with JSON: header fields, line items, totals. Or upload an existing PDF.
+    JSON payload, uploaded PDF, or natural language description. Penquify generates the document with realistic supplier names, unit mismatches, and quantity discrepancies.
   </Card>
   <Card title="Realistic Photos Out" icon="camera">
-    Get photorealistic smartphone photos with configurable imperfections -- blur, stains, folds, glare, crop.
+    Photorealistic smartphone photos — configurable camera model, paper deformation, stains, blur, angle, glare. 8 presets + infinite custom.
   </Card>
-  <Card title="Ground Truth Built In" icon="check-double">
-    Every photo ships with a verification result and occlusion manifest explaining which fields are visible, illegible, or hidden.
+  <Card title="Ground Truth Verified" icon="check-double">
+    Blind extraction + programmatic comparison. The model never sees the answers. Every field verified. Mismatches trigger retries. Occlusion manifest explains what's hidden and why.
   </Card>
-  <Card title="Multiple Interfaces" icon="plug">
-    CLI, Python library, REST API, MCP server for Claude, Agent SDK plugin.
+  <Card title="Every Interface" icon="plug">
+    CLI tool, Python library, REST API, MCP server (5 tools for Claude/Cursor), Agent SDK plugin, Docker/K8s deployment.
+  </Card>
+</CardGroup>
+
+## Before → After
+
+<CardGroup cols={2}>
+  <Card>
+    **Input: Clean PDF (auto-generated)**
+    <img src="/images/clean_document.png" alt="Clean document" style={{borderRadius: '8px', border: '1px solid #27272a'}} />
+  </Card>
+  <Card>
+    **Output: Warehouse Photo (verified)**
+    <img src="/images/demo_full_picture.jpg" alt="Realistic photo" style={{borderRadius: '8px', border: '1px solid #27272a'}} />
+  </Card>
+</CardGroup>
+
+## Same Document, Different Nightmares
+
+Every photo below was generated from the same clean PDF. Each preset targets a different real-world failure mode.
+
+<CardGroup cols={3}>
+  <Card>
+    <img src="/images/demo_full_picture.jpg" alt="full_picture" style={{borderRadius: '8px'}} />
+    `full_picture` — clean handheld
+  </Card>
+  <Card>
+    <img src="/images/demo_folded.jpg" alt="folded_skewed" style={{borderRadius: '8px'}} />
+    `folded_skewed` — dog-ear, crease, tilt
+  </Card>
+  <Card>
+    <img src="/images/demo_coffee_stain.jpg" alt="coffee_stain" style={{borderRadius: '8px'}} />
+    `coffee_stain` — stain over text
   </Card>
 </CardGroup>
 
@@ -35,29 +81,51 @@ Penquify bridges the gap between structured data and realistic operational photo
 
 <Steps>
   <Step title="Define or upload a document">
-    Provide structured data (JSON) or upload a PDF/image. Penquify renders it to a clean HTML template, then screenshots it to PNG and PDF.
+    Provide structured data (JSON), upload a PDF/image, or just run `penquify demo`. Penquify generates a realistic document with supplier-style names (not your ERP master data names), unit mismatches, and configurable discrepancies.
   </Step>
-  <Step title="Configure photo variations">
-    Choose from 8 built-in presets or define custom variations: camera model, angle, blur, stains, folds, crop, hand presence.
+  <Step title="Render clean PDF">
+    Jinja2 HTML templates produce a pixel-perfect PDF. Dispatch guides, invoices, POs, BOLs — or bring your own template.
   </Step>
-  <Step title="Generate photos via Gemini">
-    Each variation is sent to Google Gemini's image generation model with a fixed system instruction that enforces photorealistic operational capture style.
+  <Step title="Generate photo variations">
+    Each variation is sent to Gemini image generation with a fixed system instruction enforcing photorealistic operational capture. Camera model, paper deformation, stains — all configurable.
   </Step>
-  <Step title="Verify against ground truth">
-    A separate vision model blindly extracts fields from the generated photo. The extracted values are compared programmatically against the source data. Mismatches trigger retries. Intentional occlusions are documented in the occlusion manifest.
+  <Step title="Verify ground truth">
+    A separate vision model blindly extracts fields from the generated photo (it never sees the expected values). Python compares extracted vs source. Mismatches trigger retries with correction prompts.
+  </Step>
+  <Step title="Build occlusion manifest">
+    If a variation intentionally hides data (crop, stain, fold), the manifest reports exactly which fields are affected: `"oc_number": "occluded_by_crop"`, `"item_3_qty": "obscured_by_stain"`.
   </Step>
 </Steps>
 
-## Quick Example
+## Quick Start
 
 ```bash
 pip install penquify
+playwright install chromium
 export GEMINI_API_KEY=your-key
+
+# Full demo: document + 8 verified photo variations
 penquify demo
+
+# Upload any existing PDF
+penquify upload --image invoice.pdf
+
+# Describe what you want
+penquify config --text "folded paper with grease, shot on old Motorola"
 ```
 
-This generates a demo dispatch guide with 7 line items, renders it to PDF/PNG, then produces 8 photo variations with different imperfections.
+## Real Mismatches
 
-## Built By
+The kind of discrepancies penquify generates — the same ones real supplier documents have:
 
-Penquify is built by [Max Mardones](https://github.com/MAXMARDONES), CEO @ [getsmartup.ai](https://getsmartup.ai).
+| Dispatch Guide (supplier) | Purchase Order (ERP) | Challenge |
+|---|---|---|
+| PAPA PREFRITA CONGELADA **12 CJ** | PAPAS FRITAS 10MM **150 KG** | Different name + unit. No weight per case. |
+| MOZZARELLA RALLADA **115 KG** | QUESO MOZZARELLA RALLADO **120 KG** | Different name + 5kg short. |
+| JENGIBRE FRESCO PELADO **2 UN** | JENGIBRE **0.5 KG** | UN vs KG. No weight per unit. |
+| LIMON SUTIL FRESCO **24 KG** | LIMON SUTIL **25 L** | KG vs L + 1 unit short. |
+| MENTA FRESCA ATADO **10 UN** | MENTA FRESCA **2 KG** | Atados vs KG. No weight per atado. |
+
+## Open Source
+
+MIT licensed. Self-host free forever. [GitHub →](https://github.com/MAXMARDONES/penquify)
