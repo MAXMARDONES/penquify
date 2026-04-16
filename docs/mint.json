@@ -1,18 +1,10 @@
 {
+  "theme": "maple",
   "name": "Penquify",
-  "logo": {
-    "dark": "/logo/dark.svg",
-    "light": "/logo/light.svg"
-  },
-  "favicon": "/favicon.svg",
   "colors": {
     "primary": "#6366F1",
     "light": "#818CF8",
-    "dark": "#4F46E5",
-    "anchors": {
-      "from": "#6366F1",
-      "to": "#A78BFA"
-    }
+    "dark": "#4F46E5"
   },
   "modeToggle": {
     "default": "dark"
@@ -27,87 +19,94 @@
       "url": "https://github.com/MAXMARDONES/penquify"
     }
   ],
-  "tabs": [
-    {
-      "name": "Documentation",
-      "url": "/"
-    },
-    {
-      "name": "API Reference",
-      "url": "/api"
-    },
-    {
-      "name": "Changelog",
-      "url": "/changelog"
-    }
-  ],
-  "navigation": [
-    {
-      "group": "Getting Started",
-      "pages": [
-        "introduction",
-        "quickstart",
-        "concepts"
-      ]
-    },
-    {
-      "group": "Core Concepts",
-      "pages": [
-        "documents",
-        "variations",
-        "verification",
-        "occlusion-manifest"
-      ]
-    },
-    {
-      "group": "Guides",
-      "pages": [
-        "generate-from-json",
-        "upload-pdf",
-        "create-dataset",
-        "custom-template",
-        "natural-language-config",
-        "ocr-benchmark",
-        "agent-testing"
-      ]
-    },
-    {
-      "group": "API Reference",
-      "pages": [
-        "api/overview",
-        "api/generate-document",
-        "api/generate-photos",
-        "api/generate-dataset",
-        "api/generate-from-upload",
-        "api/generate-config",
-        "api/list-documents",
-        "api/presets"
-      ]
-    },
-    {
-      "group": "Integrations",
-      "pages": [
-        "integrations/cli",
-        "integrations/python",
-        "integrations/mcp-server",
-        "integrations/agent-sdk",
-        "integrations/docker"
-      ]
-    },
-    {
-      "group": "SDK Reference",
-      "pages": [
-        "sdk/document",
-        "sdk/variation",
-        "sdk/cameras",
-        "sdk/generators",
-        "sdk/verify",
-        "sdk/upload"
-      ]
-    }
-  ],
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "concepts"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "documents",
+              "variations",
+              "verification",
+              "occlusion-manifest"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "generate-from-json",
+              "upload-pdf",
+              "create-dataset",
+              "custom-template",
+              "natural-language-config",
+              "ocr-benchmark",
+              "agent-testing"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "API",
+            "pages": [
+              "api/overview",
+              "api/generate-document",
+              "api/generate-photos",
+              "api/generate-dataset",
+              "api/generate-from-upload",
+              "api/generate-config",
+              "api/list-documents",
+              "api/presets"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Integrations",
+        "groups": [
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/cli",
+              "integrations/python",
+              "integrations/mcp-server",
+              "integrations/agent-sdk",
+              "integrations/docker"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "SDK",
+        "groups": [
+          {
+            "group": "SDK Reference",
+            "pages": [
+              "sdk/document",
+              "sdk/variation",
+              "sdk/cameras",
+              "sdk/generators",
+              "sdk/verify",
+              "sdk/upload"
+            ]
+          }
+        ]
+      }
+    ]
+  },
   "footerSocials": {
     "github": "https://github.com/MAXMARDONES/penquify"
-  },
-  "theme": "maple"
+  }
 }

@@ -30,26 +30,42 @@ A Python toolkit that takes structured data and produces photorealistic smartpho
 
 ---
 
-## Demo
+## How it works
 
-**Structured data in → realistic photo out.**
+### You start with data. Penquify builds everything else.
+
+```
+ERP purchase order          penquify generates           penquify generates
+(or any JSON/PDF)    ──►    dispatch guide PDF     ──►   realistic photos
+                            with supplier jargon,        with verified
+                            unit mismatches,             ground truth +
+                            realistic discrepancies      occlusion manifest
+```
+
+You don't build the PDF. You don't design the document. You give penquify an OC number, a JSON payload, or upload an existing PDF — and it:
+
+1. **Generates a realistic document** with supplier-style names (not your ERP master data names), realistic unit mismatches (CJ vs KG, UN vs L), and configurable quantity discrepancies
+2. **Renders a clean PDF** from Jinja2 templates (dispatch guides, invoices, POs, BOLs)
+3. **Produces N photorealistic photos** — each a different failure mode (blur, fold, stain, crop, angle)
+4. **Verifies every field** by blind-extracting from the photo and comparing programmatically against source data
+5. **Generates an occlusion manifest** explaining which fields are hidden in each variation and why
+
+### Before → After
 
 <div align="center">
 <table>
 <tr>
-<td align="center"><strong>Input: Structured Data</strong></td>
+<td align="center"><strong>Clean PDF (auto-generated)</strong></td>
 <td align="center"></td>
-<td align="center"><strong>Output: Warehouse Photo</strong></td>
+<td align="center"><strong>Realistic Photo (verified)</strong></td>
 </tr>
 <tr>
 <td><img src="landing/assets/clean_document.png" width="280" alt="Clean PDF"/></td>
-<td align="center" style="font-size:24px">→</td>
+<td align="center">→</td>
 <td><img src="landing/assets/ai_studio_photo_1.jpg" width="280" alt="Realistic photo"/></td>
 </tr>
 </table>
 </div>
-
-Same document. Same data. But now it looks like someone snapped it with a 2017 Samsung at a loading dock.
 
 ### Every variation from the same document
 
@@ -68,10 +84,17 @@ Same document. Same data. But now it looks like someone snapped it with a 2017 S
 </table>
 </div>
 
-8 built-in presets + infinite custom via JSON or natural language. Every variable controllable — camera model, paper deformation, stain type, angle, blur.
+8 built-in presets + infinite custom via JSON or natural language.
 
 ```bash
-penquify demo  # generates PDF + 8 photo variations in ./output/
+# From scratch — penquify generates the document AND the photos
+penquify demo
+
+# From an existing PDF — penquify detects the schema and generates variations
+penquify upload --image existing_invoice.pdf
+
+# From a description — no JSON needed
+penquify config --text "folded paper with grease, shot on old Motorola"
 ```
 
 ---
