@@ -1,0 +1,78 @@
+---
+title: "POST /generate/photos"
+description: "Generate realistic smartphone photos from an existing document image."
+icon: "camera"
+---
+
+## Endpoint
+
+```
+POST /generate/photos
+```
+
+Generate photo variations from an existing document image (PNG or PDF).
+
+## Request Body
+
+<ParamField body="image_path" type="string" required>
+  Absolute path to the source document image (PNG/PDF). Must exist on the server filesystem.
+</ParamField>
+
+<ParamField body="presets" type="string[]">
+  List of preset names to generate. Options: `full_picture`, `folded_skewed`, `zoomed_detail`, `blurry`, `cropped_header`, `strong_oblique`, `coffee_stain`, `stapled_stack`. If omitted, generates all 8 presets.
+</ParamField>
+
+<ParamField body="variations" type="object[]">
+  Custom variation configs (alternative to presets). Each object follows the `PhotoVariation` schema.
+</ParamField>
+
+<ParamField body="doc_description" type="string" default="">
+  Key fields to preserve in the photos. Helps the image generator maintain accuracy.
+</ParamField>
+
+## Response
+
+<ResponseField name="run_id" type="string">
+  Unique identifier for this generation run
+</ResponseField>
+
+<ResponseField name="results" type="array">
+  Array of results, one per variation.
+  <Expandable>
+    <ResponseField name="name" type="string">
+      Variation preset name
+    </ResponseField>
+    <ResponseField name="path" type="string">
+      Path to generated photo (null if failed)
+    </ResponseField>
+    <ResponseField name="ok" type="boolean">
+      Whether generation succeeded
+    </ResponseField>
+    <ResponseField name="error" type="string">
+      Error message (only if failed)
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example
+
+```bash
+curl -X POST http://localhost:8000/generate/photos \
+  -H "Content-Type: application/json" \
+  -d '{
+    "image_path": "/path/to/document.png",
+    "presets": ["full_picture", "blurry", "coffee_stain"],
+    "doc_description": "dispatch guide 00054321, 2 items"
+  }'
+```
+
+```json Response
+{
+  "run_id": "f8e7d6c5b4",
+  "results": [
+    {"name": "full_picture", "path": "output/f8e7d6c5b4/photos/photo_full_picture.png", "ok": true},
+    {"name": "blurry", "path": "output/f8e7d6c5b4/photos/photo_blurry.png", "ok": true},
+    {"name": "coffee_stain", "path": "output/f8e7d6c5b4/photos/photo_coffee_stain.png", "ok": true}
+  ]
+}
+```

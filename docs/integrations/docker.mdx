@@ -1,0 +1,125 @@
+---
+title: "Docker"
+description: "Run penquify in Docker with the REST API server."
+icon: "docker"
+---
+
+## Dockerfile
+
+```dockerfile
+FROM python:3.12-slim
+
+# Install system dependencies for Playwright
+RUN apt-get update && apt-get install -y \
+    libnss3 libnspr4 libdbus-1-3 libatk1.0-0 libatk-bridge2.0-0 \
+    libcups2 libdrm2 libxkbcommon0 libatspi2.0-0 libxcomposite1 \
+    libxdamage1 libxfixes3 libxrandr2 libgbm1 libpango-1.0-0 \
+    libcairo2 libasound2 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY . .
+RUN pip install --no-cache-dir -e ".[api]"
+RUN playwright install chromium
+
+EXPOSE 8000
+
+CMD ["uvicorn", "penquify.api.server:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+## docker-compose.yml
+
+```yaml
+version: "3.8"
+
+services:
+  penquify:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - PENQUIFY_OUTPUT=/data/output
+    volumes:
+      - penquify-data:/data/output
+    restart: unless-stopped
+
+volumes:
+  penquify-data:
+```
+
+## Build and Run
+
+```bash
+# Build
+docker build -t penquify .
+
+# Run
+docker run -p 8000:8000 \
+  -e GEMINI_API_KEY=your-key \
+  -v penquify-data:/data/output \
+  penquify
+```
+
+## Kubernetes Deployment
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: penquify
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: penquify
+  template:
+    metadata:
+      labels:
+        app: penquify
+    spec:
+      containers:
+        - name: penquify
+          image: penquify:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: penquify-secrets
+                  key: gemini-api-key
+            - name: PENQUIFY_OUTPUT
+              value: /data/output
+          volumeMounts:
+            - name: output
+              mountPath: /data/output
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+      volumes:
+        - name: output
+          persistentVolumeClaim:
+            claimName: penquify-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: penquify
+spec:
+  selector:
+    app: penquify
+  ports:
+    - port: 80
+      targetPort: 8000
+  type: ClusterIP
+```
+
+<Note>
+Playwright's Chromium browser is bundled inside the container for PDF/PNG rendering. The image will be approximately 800MB due to browser dependencies.
+</Note>

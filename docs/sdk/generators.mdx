@@ -1,0 +1,158 @@
+---
+title: "Generators"
+description: "SDK reference for document and photo generation functions."
+icon: "gears"
+---
+
+## PDF Generator
+
+```python
+from penquify.generators.pdf import generate_document_files, render_html, html_to_png, html_to_pdf
+```
+
+### render_html
+
+```python
+def render_html(doc: Document, template_name: str = "guia_despacho.html") -> str
+```
+
+Render a `Document` to an HTML string using a Jinja2 template.
+
+### html_to_png
+
+```python
+async def html_to_png(html_content: str, output_path: str, width: int = 900, height: int = 1270) -> str
+```
+
+Screenshot an HTML string to PNG using Playwright. Looks for a `.page` element to screenshot; falls back to full viewport.
+
+### html_to_pdf
+
+```python
+async def html_to_pdf(html_content: str, output_path: str) -> str
+```
+
+Render HTML to A4 PDF using Playwright.
+
+### generate_document_files
+
+```python
+async def generate_document_files(
+    doc: Document,
+    output_dir: str,
+    template_name: str = "guia_despacho.html",
+) -> dict
+```
+
+Generate HTML, PNG, and PDF for a document. Returns `{"html": path, "png": path, "pdf": path}`.
+
+Files are named `{doc_type}_{doc_number}.{ext}`.
+
+---
+
+## Photo Generator
+
+```python
+from penquify.generators.photo import generate_photo, generate_dataset
+```
+
+### generate_photo
+
+```python
+async def generate_photo(
+    reference_image_path: str,      # Path to clean document PNG/PDF
+    variation: PhotoVariation,      # Variation config
+    output_path: str,               # Where to save the photo
+    api_key: Optional[str] = None,  # Gemini API key (or env GEMINI_API_KEY)
+    doc_description: str = "",      # Key fields to preserve
+) -> str                            # Returns output_path
+```
+
+Generate a single photorealistic photo. Sends the reference image + variation JSON to Gemini with the fixed system instruction.
+
+Uses model `gemini-3.1-flash-image-preview` with `IMAGE` response modality and `3:4` aspect ratio.
+
+### generate_dataset
+
+```python
+async def generate_dataset(
+    reference_image_path: str,
+    variations: Optional[List[PhotoVariation]] = None,  # Custom variations
+    output_dir: str = "output/photos",
+    api_key: Optional[str] = None,
+    doc_description: str = "",
+    preset_names: Optional[List[str]] = None,  # Use named presets instead
+) -> List[dict]                                # [{name, path, ok, error?}]
+```
+
+Generate multiple photos from one document. If `variations` is None, uses `preset_names` or all presets.
+
+Photos are saved as `photo_{variation_name}.png`.
+
+---
+
+## Verified Generators
+
+```python
+from penquify.generators.verify import generate_verified_photo, generate_verified_dataset
+```
+
+### generate_verified_photo
+
+```python
+async def generate_verified_photo(
+    reference_image_path: str,
+    variation: PhotoVariation,
+    output_path: str,
+    schema: dict,                       # field_name -> expected_value
+    max_retries: int = 3,
+    api_key: Optional[str] = None,
+    doc_description: str = "",
+) -> dict
+```
+
+Generate a photo and verify it against ground truth. Retries on mismatches.
+
+**Returns:**
+```python
+{
+    "image_path": str,
+    "verified": bool,
+    "attempts": int,
+    "ground_truth": dict,
+    "verification": dict,
+    "occlusion_manifest": dict,
+}
+```
+
+### generate_verified_dataset
+
+```python
+async def generate_verified_dataset(
+    reference_image_path: str,
+    document: Document,
+    variations: list[PhotoVariation] = None,
+    output_dir: str = "output",
+    api_key: Optional[str] = None,
+    preset_names: list[str] = None,
+    max_retries: int = 3,
+) -> list[dict]
+```
+
+Generate a full verified dataset. Writes `ground_truth.json`, `dataset_summary.json`, and per-image `_verification.json` and `_occlusion.json` files.
+
+---
+
+## Config Generator
+
+```python
+from penquify.generators.config import text_to_variation
+```
+
+### text_to_variation
+
+```python
+async def text_to_variation(description: str, api_key: Optional[str] = None) -> dict
+```
+
+Convert natural language to a `PhotoVariation` JSON config using Gemini 2.5 Flash.

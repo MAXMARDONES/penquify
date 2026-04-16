@@ -1,0 +1,169 @@
+---
+title: "Python Library"
+description: "Use penquify as a Python library in your own code."
+icon: "python"
+---
+
+## Installation
+
+```bash
+pip install penquify
+```
+
+## Basic Usage
+
+### Generate a Document
+
+```python
+import asyncio
+from penquify.models import Document, DocHeader, DocItem
+from penquify.generators.pdf import generate_document_files
+
+doc = Document(
+    header=DocHeader(
+        doc_type="guia_despacho",
+        doc_number="00054321",
+        date="15/04/2026",
+        emitter_name="ACME FOODS S.A.",
+        receiver_name="DISTRIBUIDORA CENTRAL LTDA.",
+    ),
+    items=[
+        DocItem(pos=1, code="AF-1001", description="HARINA DE TRIGO PREMIUM 25KG",
+                qty=40, unit="UN", unit_price=12500, total=500000),
+    ],
+)
+
+files = asyncio.run(generate_document_files(doc, "output/"))
+# {"html": "output/guia_despacho_00054321.html",
+#  "png": "output/guia_despacho_00054321.png",
+#  "pdf": "output/guia_despacho_00054321.pdf"}
+```
+
+### Generate Photos
+
+```python
+from penquify.generators.photo import generate_photo, generate_dataset
+from penquify.models.variation import PhotoVariation, PRESETS
+
+# Single photo with a preset
+path = asyncio.run(generate_photo(
+    reference_image_path="output/guia_despacho_00054321.png",
+    variation=PRESETS["full_picture"],
+    output_path="output/photo_full.png",
+    doc_description="guia 00054321, 1 item",
+))
+
+# Multiple photos (all presets)
+results = asyncio.run(generate_dataset(
+    "output/guia_despacho_00054321.png",
+    output_dir="output/photos",
+))
+
+# Multiple photos (specific presets)
+results = asyncio.run(generate_dataset(
+    "output/guia_despacho_00054321.png",
+    output_dir="output/photos",
+    preset_names=["full_picture", "blurry", "coffee_stain"],
+))
+
+# Custom variation
+custom = PhotoVariation(
+    name="my_custom",
+    camera="iPhone 12",
+    angle="45 degree oblique",
+    skew="strong",
+    motion_blur=True,
+)
+path = asyncio.run(generate_photo(
+    "output/guia_despacho_00054321.png", custom, "output/photo_custom.png",
+))
+```
+
+### Verify Photos
+
+```python
+from penquify.generators.verify import (
+    verify_ground_truth,
+    generate_verified_photo,
+    generate_verified_dataset,
+    build_occlusion_manifest,
+)
+
+# Verify a single photo
+schema = {"doc_number": "00054321", "emitter_name": "ACME FOODS S.A."}
+verification = asyncio.run(verify_ground_truth("output/photo_full.png", schema))
+# verification["summary"]["matched"] == 2
+
+# Generate + verify in one call
+result = asyncio.run(generate_verified_photo(
+    "output/guia_despacho_00054321.png",
+    PRESETS["full_picture"],
+    "output/photo_verified.png",
+    schema=schema,
+    max_retries=3,
+))
+# result["verified"] == True
+
+# Full verified dataset
+results = asyncio.run(generate_verified_dataset(
+    "output/guia_despacho_00054321.png",
+    document=doc,
+    output_dir="output/dataset",
+    preset_names=["full_picture", "blurry"],
+))
+```
+
+### Upload Pipeline
+
+```python
+from penquify.generators.upload import upload_and_generate, detect_schema_from_image
+
+# Detect schema from an image
+schema = asyncio.run(detect_schema_from_image("invoice.png"))
+# schema["document_type"] == "invoice"
+# schema["header"]["doc_number"] == "00098765"
+
+# Full upload pipeline
+result = asyncio.run(upload_and_generate(
+    "invoice.pdf",
+    output_dir="output/uploaded",
+    preset_names=["full_picture", "blurry"],
+))
+```
+
+### Natural Language Config
+
+```python
+from penquify.generators.config import text_to_variation
+
+config = asyncio.run(text_to_variation(
+    "crumpled document on a loading dock, old phone, strong glare"
+))
+# Returns PhotoVariation-compatible JSON dict
+```
+
+## Key Imports
+
+```python
+# Models
+from penquify.models import Document, DocHeader, DocItem
+from penquify.models.variation import PhotoVariation, Stain, PRESETS
+from penquify.models.cameras import CAMERAS, get_camera
+
+# Generators
+from penquify.generators.pdf import generate_document_files, render_html
+from penquify.generators.photo import generate_photo, generate_dataset
+from penquify.generators.verify import (
+    extract_fields, compare_against_ground_truth,
+    build_occlusion_manifest, verify_ground_truth,
+    generate_verified_photo, generate_verified_dataset,
+)
+from penquify.generators.upload import (
+    detect_schema_from_image, upload_and_generate, schema_to_flat,
+)
+from penquify.generators.config import text_to_variation
+```
+
+<Note>
+All generator functions are async. Use `asyncio.run()` in synchronous contexts or `await` in async code.
+</Note>

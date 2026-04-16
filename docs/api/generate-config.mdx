@@ -1,0 +1,52 @@
+---
+title: "POST /generate/config"
+description: "Convert natural language to a PhotoVariation JSON config."
+icon: "wand-magic-sparkles"
+---
+
+## Endpoint
+
+```
+POST /generate/config
+```
+
+Convert a natural language description of a photo variation into a structured `PhotoVariation` JSON config.
+
+## Request Body
+
+<ParamField body="description" type="string" required>
+  Natural language description of the desired photo variation. Example: `"blurry photo with coffee stain, taken from above with strong angle"`
+</ParamField>
+
+## Response
+
+Returns a JSON object matching the `PhotoVariation` schema, ready to use with `/generate/photos`.
+
+## Example
+
+```bash
+curl -X POST http://localhost:8000/generate/config \
+  -H "Content-Type: application/json" \
+  -d '{"description": "old Samsung phone, warehouse lighting, worker with gloves holding a crumpled document"}'
+```
+
+```json Response
+{
+  "name": "warehouse_crumpled",
+  "camera": "Samsung Galaxy A5 2017",
+  "year_device_style": "2017 Android mid-range",
+  "aspect_ratio": "4:3",
+  "capture_intent": "quick operational capture",
+  "document_coverage": "88% of frame",
+  "background": "warehouse shelving at edges",
+  "curvature": "strong",
+  "folds": "multiple",
+  "wrinkles": "heavy",
+  "angle": "slight oblique",
+  "skew": "moderate",
+  "uneven_lighting": true,
+  "hand_visible": true,
+  "grip_type": "both hands",
+  "glove": "warehouse glove"
+}
+```

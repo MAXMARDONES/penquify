@@ -1,0 +1,134 @@
+---
+title: "Custom Templates"
+description: "Create new document templates with Jinja2 HTML."
+icon: "paintbrush"
+---
+
+## Overview
+
+Penquify uses Jinja2 HTML templates to render documents. The default template is `guia_despacho.html` (Chilean dispatch guide). You can add your own templates for invoices, purchase orders, bills of lading, or any other document type.
+
+## Template Location
+
+Templates live in `penquify/templates/`. Add your `.html` file there.
+
+## Available Variables
+
+Templates receive the full document data via `doc.to_dict()`:
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `header.doc_type` | `str` | Document type identifier |
+| `header.doc_number` | `str` | Document number |
+| `header.date` | `str` | Document date |
+| `header.emitter_name` | `str` | Emitter company name |
+| `header.emitter_rut` | `str` | Emitter tax ID |
+| `header.emitter_giro` | `str` | Emitter business activity |
+| `header.emitter_address` | `str` | Emitter address |
+| `header.receiver_name` | `str` | Receiver company name |
+| `header.receiver_rut` | `str` | Receiver tax ID |
+| `header.oc_number` | `str` | Purchase order reference |
+| `items` | `list[dict]` | Array of line item dicts |
+| `observations` | `str` | Handwritten notes |
+| `subtotal` | `float` | Computed subtotal |
+| `iva` | `float` | 19% VAT |
+| `total` | `float` | Grand total |
+
+Each item in `items` has: `pos`, `code`, `description`, `qty`, `unit`, `unit_price`, `total`, `batch`, `sap_material`, `sap_qty`, `sap_unit`.
+
+## Template Structure
+
+<Steps>
+  <Step title="Create the HTML file">
+    Create `penquify/templates/my_invoice.html`:
+
+    ```html
+    <html>
+    <head>
+      <style>
+        .page {
+          width: 850px;
+          min-height: 1200px;
+          padding: 40px;
+          font-family: Arial, sans-serif;
+          font-size: 11px;
+          background: white;
+          color: #333;
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #999; padding: 4px 6px; text-align: left; }
+        th { background: #f0f0f0; }
+        .right { text-align: right; }
+        .header { display: flex; justify-content: space-between; }
+      </style>
+    </head>
+    <body>
+      <div class="page">
+        <div class="header">
+          <div>
+            <h2>{{ header.emitter_name }}</h2>
+            <p>{{ header.emitter_address }}</p>
+            <p>RUT: {{ header.emitter_rut }}</p>
+          </div>
+          <div style="text-align:right">
+            <h3>FACTURA N {{ header.doc_number }}</h3>
+            <p>Fecha: {{ header.date }}</p>
+          </div>
+        </div>
+
+        <table>
+          <tr><th>Pos</th><th>Codigo</th><th>Descripcion</th><th>Cant</th><th>UM</th><th class="right">P.Unit</th><th class="right">Total</th></tr>
+          {% for item in items %}
+          <tr>
+            <td>{{ item.pos }}</td>
+            <td>{{ item.code }}</td>
+            <td>{{ item.description }}</td>
+            <td>{{ item.qty }}</td>
+            <td>{{ item.unit }}</td>
+            <td class="right">{{ "${:,.0f}".format(item.unit_price) }}</td>
+            <td class="right">{{ "${:,.0f}".format(item.total) }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+
+        <div style="text-align:right; margin-top:10px;">
+          <p>Subtotal: ${{ "{:,.0f}".format(subtotal) }}</p>
+          <p>IVA 19%: ${{ "{:,.0f}".format(iva) }}</p>
+          <p><strong>Total: ${{ "{:,.0f}".format(total) }}</strong></p>
+        </div>
+      </div>
+    </body>
+    </html>
+    ```
+  </Step>
+  <Step title="Use it in generation">
+    ```python
+    files = await generate_document_files(doc, "output/", template_name="my_invoice.html")
+    ```
+
+    Or via CLI:
+    ```bash
+    penquify pdf --doc-json doc.json --output output/
+    ```
+
+    Or via API:
+    ```json
+    {
+      "header": { ... },
+      "items": [ ... ],
+      "template": "my_invoice.html"
+    }
+    ```
+  </Step>
+</Steps>
+
+<Tip>
+Wrap your document content in a `div.page` element. The PNG renderer looks for `.page` to screenshot. If not found, it captures the full viewport.
+</Tip>
+
+## Design Tips
+
+- Use a fixed `width` (e.g. 850px) for consistent rendering across documents
+- Use standard fonts that Playwright's Chromium can render
+- Keep the design realistic -- penquify generates photos of these documents, so they should look like real printed pages
+- Test your template by generating the PDF first before creating photo variations

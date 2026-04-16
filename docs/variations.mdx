@@ -1,0 +1,164 @@
+---
+title: "Photo Variations"
+description: "Configure every aspect of generated photos: camera, angle, blur, stains, folds, and more."
+icon: "sliders"
+---
+
+## PhotoVariation Model
+
+A `PhotoVariation` is a structured configuration that describes how a generated photo should look. It controls the simulated camera, framing, paper condition, capture artifacts, damage, and failure modes.
+
+When generating a photo, the variation is serialized to JSON and sent to Gemini alongside the clean document image and a fixed system instruction.
+
+## All Fields
+
+<AccordionGroup>
+  <Accordion title="Meta / Camera">
+    | Field | Type | Default | Description |
+    |-------|------|---------|-------------|
+    | `name` | `str` | `"default"` | Identifier for this variation |
+    | `camera` | `str` | `"Samsung Galaxy S8"` | Camera device (free text or preset name) |
+    | `year_device_style` | `str` | `"2017 Android"` | Device era and style |
+    | `aspect_ratio` | `str` | `"4:3"` | Image aspect ratio |
+    | `capture_intent` | `str` | `"functional document photo"` | Why the photo is being taken |
+  </Accordion>
+
+  <Accordion title="Scene / Framing">
+    | Field | Type | Default | Description |
+    |-------|------|---------|-------------|
+    | `document_coverage` | `str` | `"90% of frame"` | How much of the frame the document fills |
+    | `background` | `str` | `"blurred warehouse hints only at edges"` | Background description |
+  </Accordion>
+
+  <Accordion title="Paper Deformation">
+    | Field | Type | Default | Description |
+    |-------|------|---------|-------------|
+    | `curvature` | `str` | `"slight"` | Paper curvature: `none`, `slight`, `strong` |
+    | `folds` | `str` | `"none"` | Fold type: `none`, `middle_vertical`, `dog_ear`, `multiple` |
+    | `wrinkles` | `str` | `"minor"` | Wrinkle level: `none`, `minor`, `medium`, `heavy` |
+    | `corner_bends` | `str` | `"none"` | Corner bend description |
+    | `edge_curl` | `str` | `"none"` | Edge curl description |
+  </Accordion>
+
+  <Accordion title="Capture Style">
+    | Field | Type | Default | Description |
+    |-------|------|---------|-------------|
+    | `angle` | `str` | `"slight oblique"` | Camera angle: `straight`, `slight_oblique`, `strong_oblique_45deg` |
+    | `skew` | `str` | `"slight"` | Rotation skew: `none`, `slight`, `moderate`, `strong` |
+    | `rotation_degrees` | `float` | `0` | Rotation in degrees (0-15) |
+    | `focus_plane` | `str` | `"center sharp, edges softer"` | Focus distribution |
+  </Accordion>
+
+  <Accordion title="Photo Artifacts">
+    | Field | Type | Default | Description |
+    |-------|------|---------|-------------|
+    | `motion_blur` | `bool` | `False` | Enable motion blur |
+    | `blur_direction` | `str` | `""` | Direction: `horizontal`, `vertical`, `diagonal` |
+    | `glare` | `str` | `"mild"` | Glare intensity: `none`, `mild`, `strong` |
+    | `glare_location` | `str` | `""` | Where glare appears |
+    | `shadow_from_hand` | `bool` | `True` | Hand shadow on document |
+    | `uneven_lighting` | `bool` | `True` | Non-uniform ambient lighting |
+    | `jpeg_compression` | `str` | `"light"` | Compression artifacts: `none`, `light`, `moderate`, `heavy` |
+  </Accordion>
+
+  <Accordion title="Hand Presence">
+    | Field | Type | Default | Description |
+    |-------|------|---------|-------------|
+    | `hand_visible` | `bool` | `True` | Show a hand holding the document |
+    | `grip_type` | `str` | `"thumb on lower corner"` | How the hand grips |
+    | `glove` | `str` | `"none"` | Glove type: `none`, `warehouse glove`, `latex glove` |
+  </Accordion>
+
+  <Accordion title="Damage / Contamination">
+    | Field | Type | Default | Description |
+    |-------|------|---------|-------------|
+    | `stain` | `Stain?` | `None` | Stain configuration (see below) |
+    | `dirt_marks` | `bool` | `False` | Show dirt marks |
+    | `torn_edge` | `bool` | `False` | Torn paper edge |
+  </Accordion>
+
+  <Accordion title="Failure Modes">
+    | Field | Type | Default | Description |
+    |-------|------|---------|-------------|
+    | `cropped_header` | `bool` | `False` | Header cut off by framing |
+    | `missing_area` | `str` | `""` | Missing area description (e.g. `"top 10-15%"`) |
+    | `overexposed_patch` | `bool` | `False` | Overexposed area |
+    | `shadow_band` | `bool` | `False` | Dark shadow band across document |
+  </Accordion>
+
+  <Accordion title="Multi-page">
+    | Field | Type | Default | Description |
+    |-------|------|---------|-------------|
+    | `stapled` | `bool` | `False` | Stapled pages |
+    | `stacked_sheets_behind` | `int` | `0` | Number of sheets behind the main document |
+  </Accordion>
+</AccordionGroup>
+
+## Stain Model
+
+The `Stain` dataclass configures document contamination:
+
+| Field | Type | Default | Options |
+|-------|------|---------|---------|
+| `type` | `str` | `"coffee"` | `coffee`, `water`, `grease`, `ink` |
+| `location` | `str` | `"upper_right"` | `upper_right`, `center`, `lower_left`, `random` |
+| `opacity` | `str` | `"semi-transparent"` | `light`, `semi-transparent`, `heavy` |
+| `text_obstruction` | `str` | `"partial"` | `none`, `partial`, `severe` |
+
+## Built-in Presets
+
+Penquify ships with 8 presets covering common operational capture scenarios:
+
+| Preset | Key Features |
+|--------|-------------|
+| `full_picture` | 90% coverage, slight curvature, slight oblique angle |
+| `folded_skewed` | Dog ear folds, strong curvature, moderate skew, 6 degree rotation |
+| `zoomed_detail` | 95% coverage, tight crop, center-focused sharpness |
+| `blurry` | Motion blur (horizontal + downward), overall soft focus |
+| `cropped_header` | Top 10-15% of document cut off |
+| `strong_oblique` | 45 degree angle, strong skew, vertical fold, strong curvature |
+| `coffee_stain` | Coffee stain (upper right, semi-transparent, partial text obstruction), medium wrinkles |
+| `stapled_stack` | Stapled with 2 sheets behind, dog ear folds |
+
+## Full JSON Example
+
+```json
+{
+  "name": "warehouse_capture",
+  "camera": "Samsung Galaxy A10",
+  "year_device_style": "2019 budget Android",
+  "aspect_ratio": "4:3",
+  "capture_intent": "quick operational capture",
+  "document_coverage": "88% of frame",
+  "background": "loading dock concrete floor edges",
+  "curvature": "strong",
+  "folds": "dog_ear",
+  "wrinkles": "medium",
+  "angle": "above-right perspective",
+  "skew": "moderate",
+  "rotation_degrees": 4.5,
+  "focus_plane": "center sharp, edges softer",
+  "motion_blur": false,
+  "glare": "mild",
+  "shadow_from_hand": true,
+  "uneven_lighting": true,
+  "jpeg_compression": "moderate",
+  "hand_visible": true,
+  "grip_type": "pinched top edge",
+  "glove": "warehouse glove",
+  "stain": {
+    "type": "grease",
+    "location": "lower_left",
+    "opacity": "light",
+    "text_obstruction": "none"
+  },
+  "dirt_marks": true,
+  "cropped_header": false,
+  "stapled": false,
+  "stacked_sheets_behind": 0
+}
+```
+
+<Tip>
+You don't need to specify every field. Defaults are designed for a reasonable operational photo. Override only what you need.
+</Tip>

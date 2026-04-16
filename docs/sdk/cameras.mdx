@@ -1,0 +1,92 @@
+---
+title: "Camera Presets"
+description: "SDK reference for the 22 camera presets."
+icon: "mobile"
+---
+
+## Module
+
+```python
+from penquify.models.cameras import CAMERAS, get_camera
+```
+
+## get_camera
+
+```python
+def get_camera(name: str) -> dict
+```
+
+Get camera config by preset name. If the name matches a preset, returns the full config. Otherwise, returns the name as free text with defaults.
+
+```python
+get_camera("galaxy_s8")
+# {"camera": "Samsung Galaxy S8", "year_device_style": "2017 Android flagship", "lens_equivalent": "26mm"}
+
+get_camera("My Custom Phone")
+# {"camera": "My Custom Phone", "year_device_style": "unknown", "lens_equivalent": "28mm"}
+```
+
+## CAMERAS
+
+All 22 camera presets:
+
+### 2016
+
+| Key | Camera | Style | Lens |
+|-----|--------|-------|------|
+| `galaxy_s7` | Samsung Galaxy S7 | 2016 Android flagship | 26mm |
+| `iphone_7` | iPhone 7 | 2016 iOS | 28mm |
+
+### 2017
+
+| Key | Camera | Style | Lens |
+|-----|--------|-------|------|
+| `galaxy_s8` | Samsung Galaxy S8 | 2017 Android flagship | 26mm |
+| `galaxy_a5_2017` | Samsung Galaxy A5 2017 | 2017 Android mid-range | 28mm |
+| `moto_g5` | Motorola Moto G5 Plus | 2017 budget Android | 28mm |
+| `iphone_8` | iPhone 8 | 2017 iOS | 28mm |
+| `pixel_2` | Google Pixel 2 | 2017 Android | 27mm |
+| `huawei_p10` | Huawei P10 Lite | 2017 Android mid-range | 27mm |
+| `xiaomi_note4` | Xiaomi Redmi Note 4 | 2017 budget Android | 28mm |
+
+### 2018
+
+| Key | Camera | Style | Lens |
+|-----|--------|-------|------|
+| `galaxy_s9` | Samsung Galaxy S9 | 2018 Android flagship | 26mm |
+| `iphone_xr` | iPhone XR | 2018 iOS | 26mm |
+
+### 2019
+
+| Key | Camera | Style | Lens |
+|-----|--------|-------|------|
+| `galaxy_a10` | Samsung Galaxy A10 | 2019 budget Android | 28mm |
+| `galaxy_a50` | Samsung Galaxy A50 | 2019 Android mid-range | 26mm |
+| `iphone_11` | iPhone 11 | 2019 iOS | 26mm |
+
+### 2020
+
+| Key | Camera | Style | Lens |
+|-----|--------|-------|------|
+| `galaxy_a21s` | Samsung Galaxy A21s | 2020 budget Android | 28mm |
+| `iphone_12` | iPhone 12 | 2020 iOS | 26mm |
+| `pixel_4a` | Google Pixel 4a | 2020 Android mid-range | 27mm |
+
+### 2021-2023
+
+| Key | Camera | Style | Lens |
+|-----|--------|-------|------|
+| `galaxy_a13` | Samsung Galaxy A13 | 2022 budget Android | 26mm |
+| `iphone_14` | iPhone 14 | 2022 iOS | 26mm |
+| `pixel_7` | Google Pixel 7 | 2022 Android | 25mm |
+
+### Generic
+
+| Key | Camera | Style | Lens |
+|-----|--------|-------|------|
+| `warehouse_generic` | generic mid-range Android smartphone | 2017 budget Android | 28mm |
+| `field_worker` | rugged Android phone with screen protector | 2019 field device | 28mm |
+
+<Tip>
+The camera presets are biased toward older and budget devices because that's what most warehouse and logistics workers actually use. This produces more realistic operational photos with appropriate camera limitations (limited dynamic range, JPEG artifacts, etc.).
+</Tip>

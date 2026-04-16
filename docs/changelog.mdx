@@ -1,0 +1,23 @@
+---
+title: "Changelog"
+description: "Release history for Penquify."
+icon: "clock-rotate-left"
+---
+
+## v0.1.0 (2026-04-16)
+
+Initial release.
+
+- Document model: `DocHeader`, `DocItem`, `Document` with computed totals
+- Photo variation system with 8 built-in presets and 22 camera presets
+- PDF/PNG generation via Jinja2 templates + Playwright
+- Photo generation via Gemini image gen with fixed system instruction
+- Ground truth verification: blind extraction + programmatic comparison
+- Occlusion manifest: field-level visibility tracking with causal reasons
+- Verified generation with retry loop
+- Natural language config: `text_to_variation()`
+- Upload pipeline: PDF/image -> schema detection -> verified photos
+- CLI: `demo`, `pdf`, `photos`, `upload` commands
+- REST API: FastAPI server with 8 endpoints
+- MCP server: 5 tools for Claude Desktop/Cursor/Windsurf
+- Agent SDK plugin: `penquify_tools` for Claude Agent SDK

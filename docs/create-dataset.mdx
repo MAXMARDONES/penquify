@@ -1,0 +1,143 @@
+---
+title: "Create Datasets"
+description: "Batch generation: N documents x M variations, with verification and occlusion manifests."
+icon: "table"
+---
+
+## Overview
+
+Generate complete benchmark datasets by combining multiple documents with multiple photo variations. Every photo comes with ground truth, verification results, and an occlusion manifest.
+
+## Verified Dataset Generation
+
+The `generate_verified_dataset()` function produces a full dataset from a single document:
+
+```python
+import asyncio
+from penquify.models import Document, DocHeader, DocItem
+from penquify.generators.verify import generate_verified_dataset
+
+doc = Document(
+    header=DocHeader(
+        doc_type="guia_despacho",
+        doc_number="00054321",
+        date="15/04/2026",
+        emitter_name="ACME FOODS S.A.",
+        receiver_name="DISTRIBUIDORA CENTRAL LTDA.",
+    ),
+    items=[
+        DocItem(pos=1, code="AF-1001", description="HARINA DE TRIGO PREMIUM 25KG",
+                qty=40, unit="UN", unit_price=12500, total=500000),
+        DocItem(pos=2, code="AF-2003", description="ACEITE VEGETAL 5L",
+                qty=24, unit="UN", unit_price=6990, total=167760),
+    ],
+)
+
+results = asyncio.run(generate_verified_dataset(
+    reference_image_path="output/guia_despacho_00054321.png",
+    document=doc,
+    output_dir="output/dataset",
+    preset_names=["full_picture", "folded_skewed", "blurry", "coffee_stain"],
+    max_retries=3,
+))
+```
+
+## Output Structure
+
+```
+output/dataset/
+  ground_truth.json                     # master ground truth (all fields)
+  dataset_summary.json                  # summary: total, verified, failed
+  photo_full_picture.png
+  photo_full_picture_verification.json
+  photo_full_picture_occlusion.json
+  photo_folded_skewed.png
+  photo_folded_skewed_verification.json
+  photo_folded_skewed_occlusion.json
+  ...
+```
+
+## Dataset Summary
+
+The `dataset_summary.json` tracks overall results:
+
+```json
+{
+  "total": 4,
+  "verified": 3,
+  "failed": 1,
+  "results": [
+    {
+      "name": "photo_full_picture.png",
+      "verified": true,
+      "attempts": 1,
+      "summary": {
+        "total_fields": 15,
+        "matched": 15,
+        "mismatched": 0,
+        "illegible": 0,
+        "not_visible": 0
+      }
+    }
+  ]
+}
+```
+
+## Benchmark Matrix: N Docs x M Variations
+
+To create a larger benchmark, loop over multiple documents:
+
+```python
+import json
+import asyncio
+from penquify.models import Document, DocHeader, DocItem
+from penquify.generators.pdf import generate_document_files
+from penquify.generators.verify import generate_verified_dataset
+
+async def build_benchmark(docs_json_path: str, output_base: str):
+    with open(docs_json_path) as f:
+        docs_data = json.load(f)
+
+    presets = ["full_picture", "folded_skewed", "blurry",
+               "cropped_header", "coffee_stain", "strong_oblique"]
+
+    for doc_data in docs_data:
+        doc = Document(
+            header=DocHeader(**doc_data["header"]),
+            items=[DocItem(**it) for it in doc_data["items"]],
+        )
+        doc_dir = f"{output_base}/{doc.header.doc_number}"
+
+        # Generate clean document
+        files = await generate_document_files(doc, doc_dir)
+
+        # Generate verified dataset
+        await generate_verified_dataset(
+            reference_image_path=files["png"],
+            document=doc,
+            output_dir=f"{doc_dir}/photos",
+            preset_names=presets,
+            max_retries=3,
+        )
+        print(f"Done: {doc.header.doc_number}")
+
+asyncio.run(build_benchmark("my_docs.json", "benchmark/"))
+```
+
+<Info>
+Each photo generation requires a Gemini API call, and verification requires an additional call. Budget approximately 2 API calls per photo (generation + extraction), plus retries for mismatches.
+</Info>
+
+## Progress Tracking
+
+The generators print progress to stdout:
+
+```
+  [OK] full_picture: output/dataset/photo_full_picture.png
+  [VERIFIED] full_picture: attempt 1, 15 match, 0 illegible, 0 not_visible
+  [RETRY 1/3] folded_skewed: 2 mismatched fields: ['item_1_total', 'total']
+  [VERIFIED] folded_skewed: attempt 2, 13 match, 2 illegible, 0 not_visible
+  [FAIL] blurry: 1 mismatches after 3 attempts
+
+Dataset: 3/4 verified, 1 failed
+```

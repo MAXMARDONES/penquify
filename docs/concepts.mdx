@@ -1,0 +1,65 @@
+---
+title: "Core Concepts"
+description: "The four pillars of penquify: Document model, Photo variations, Ground truth verification, Occlusion manifest."
+icon: "lightbulb"
+---
+
+Penquify is built around four core concepts that work together to produce realistic, verifiable synthetic document photos.
+
+## Document Model
+
+Every document in penquify is a `Document` object with a `DocHeader` and a list of `DocItem` entries. The header contains metadata (doc number, date, emitter, receiver, references) and the items contain line-level data (code, description, qty, unit, price).
+
+Documents are rendered to HTML using Jinja2 templates, then screenshotted to PNG and PDF via Playwright.
+
+```python
+Document
+  header: DocHeader    # doc_type, doc_number, date, emitter_*, receiver_*, ...
+  items: [DocItem]     # pos, code, description, qty, unit, unit_price, total
+  observations: str    # handwritten notes
+  subtotal, iva, total # computed properties
+```
+
+<Info>
+The document model is intentionally flat and logistics-focused. It covers dispatch guides (guia de despacho), invoices, purchase orders, and bills of lading.
+</Info>
+
+## Photo Variations
+
+A `PhotoVariation` describes how a generated photo should look. It controls every aspect of the simulated capture:
+
+- **Camera**: device model, year, lens equivalent
+- **Framing**: document coverage, background, angle, skew, rotation
+- **Paper condition**: curvature, folds, wrinkles, corner bends
+- **Artifacts**: motion blur, glare, hand shadow, JPEG compression
+- **Damage**: stains, dirt, torn edges
+- **Failure modes**: cropped header, missing areas, overexposure
+- **Multi-page**: staples, stacked sheets
+
+Penquify ships with **8 built-in presets** (full_picture, folded_skewed, zoomed_detail, blurry, cropped_header, strong_oblique, coffee_stain, stapled_stack) and **22 camera presets** spanning 2016-2023 devices.
+
+## Ground Truth Verification
+
+Penquify's verification pipeline ensures generated photos actually contain the correct data:
+
+1. **Blind extraction**: A vision model (Gemini 2.5 Flash) reads the generated photo and extracts field values. It never sees the expected values.
+2. **Programmatic comparison**: Extracted values are compared against the source schema using normalized string matching. No model is involved in comparison.
+3. **Retry on mismatch**: If fields are wrong (image gen errors), penquify retries up to N times, emphasizing the mismatched fields in the prompt.
+4. **Occlusion is OK**: Fields that are intentionally hidden (by crop, stain, blur, etc.) are not treated as errors.
+
+<Warning>
+The extraction model never sees ground truth values. This separation prevents model bias in verification.
+</Warning>
+
+## Occlusion Manifest
+
+For each generated photo, penquify produces an occlusion manifest that explains **why** each field is or isn't visible:
+
+- `visible` -- field was correctly extracted
+- `occluded_by_crop(top 10-15%)` -- field hidden by intentional crop
+- `obscured_by_coffee_stain(upper_right)` -- field covered by stain
+- `blurred_by_motion(horizontal)` -- field illegible due to motion blur
+- `distorted_by_extreme_angle` -- field warped beyond readability
+- `hallucinated_or_garbled_by_image_gen` -- image generation error (mismatch)
+
+This manifest is what makes penquify datasets useful for benchmarking: you know exactly which fields should and shouldn't be extractable from each photo.

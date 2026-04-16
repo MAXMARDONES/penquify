@@ -1,0 +1,73 @@
+---
+title: "Natural Language Config"
+description: "Describe photo variations in plain English and let Gemini generate the JSON config."
+icon: "message-lines"
+---
+
+## Overview
+
+Instead of manually constructing `PhotoVariation` JSON, you can describe what you want in plain English. The `text_to_variation()` function uses Gemini 2.5 Flash to convert your description into a valid config.
+
+## Usage
+
+<Tabs>
+  <Tab title="Python">
+    ```python
+    import asyncio
+    from penquify.generators.config import text_to_variation
+
+    config = asyncio.run(text_to_variation(
+        "blurry photo with a coffee stain on the upper right, taken from a strong angle "
+        "with an old Samsung phone, warehouse lighting, worker wearing gloves"
+    ))
+    print(config)
+    ```
+
+    Output:
+    ```json
+    {
+      "name": "warehouse_blurry_stained",
+      "camera": "Samsung Galaxy A5 2017",
+      "year_device_style": "2017 Android mid-range",
+      "angle": "45 degree oblique",
+      "skew": "strong",
+      "motion_blur": true,
+      "blur_direction": "horizontal",
+      "glare": "mild",
+      "uneven_lighting": true,
+      "hand_visible": true,
+      "glove": "warehouse glove",
+      "stain": {
+        "type": "coffee",
+        "location": "upper_right",
+        "opacity": "semi-transparent",
+        "text_obstruction": "partial"
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="CLI (via API)">
+    ```bash
+    curl -X POST http://localhost:8000/generate/config \
+      -H "Content-Type: application/json" \
+      -d '{"description": "clean photo, straight angle, no blur, modern iPhone"}'
+    ```
+  </Tab>
+  <Tab title="MCP">
+    The `penquify_text_to_config` tool accepts a description and returns the JSON config.
+  </Tab>
+</Tabs>
+
+## Example Descriptions
+
+| Description | Key Config Generated |
+|-------------|---------------------|
+| "perfect scan-like photo" | `angle: "straight"`, `motion_blur: false`, `glare: "none"` |
+| "quick photo taken in a hurry by a warehouse worker" | `motion_blur: true`, `skew: "moderate"`, `hand_visible: true`, `glove: "warehouse glove"` |
+| "document with grease stains, folded, old phone" | `stain.type: "grease"`, `folds: "multiple"`, `camera: "budget Android"` |
+| "cropped photo missing the header" | `cropped_header: true`, `missing_area: "top 10-15%"` |
+| "stapled multi-page document on a desk" | `stapled: true`, `stacked_sheets_behind: 2`, `hand_visible: false` |
+
+<Info>
+The generated config follows the exact `PhotoVariation` schema. You can use it directly or modify specific fields before generating photos.
+</Info>

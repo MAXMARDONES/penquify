@@ -1,0 +1,124 @@
+---
+title: "MCP Server"
+description: "Connect penquify to Claude Desktop, Cursor, or Windsurf via MCP."
+icon: "plug"
+---
+
+## Overview
+
+Penquify ships with a built-in MCP (Model Context Protocol) server that exposes 5 tools for document and photo generation. Use it with Claude Desktop, Cursor, Windsurf, or any MCP-compatible client.
+
+## Setup
+
+### Claude Desktop
+
+Add to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "penquify": {
+      "command": "python3",
+      "args": ["-m", "penquify.mcp"],
+      "env": {
+        "GEMINI_API_KEY": "your-gemini-api-key",
+        "PENQUIFY_OUTPUT": "~/penquify-output"
+      }
+    }
+  }
+}
+```
+
+### Cursor / Windsurf
+
+Add to your `.cursor/mcp.json` or equivalent:
+
+```json
+{
+  "mcpServers": {
+    "penquify": {
+      "command": "python3",
+      "args": ["-m", "penquify.mcp"],
+      "env": {
+        "GEMINI_API_KEY": "your-gemini-api-key"
+      }
+    }
+  }
+}
+```
+
+## Available Tools
+
+### penquify_generate_document
+
+Generate a logistics document (PDF + PNG) from structured data.
+
+**Parameters:**
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `doc_type` | `string` | No | Template: `guia_despacho`, `factura_sii`, `purchase_order`, `bill_of_lading` |
+| `doc_number` | `string` | Yes | Document number |
+| `date` | `string` | Yes | Date (DD/MM/YYYY) |
+| `emitter_name` | `string` | Yes | Emitter company name |
+| `receiver_name` | `string` | No | Receiver company name |
+| `oc_number` | `string` | No | Purchase order reference |
+| `items` | `array` | Yes | Items: `[{description, qty, unit, unit_price?}]` |
+| `observations` | `string` | No | Handwritten notes |
+
+**Returns:** File paths (html, png, pdf).
+
+### penquify_generate_photos
+
+Generate realistic smartphone photos of a document image.
+
+**Parameters:**
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `image_path` | `string` | Yes | Path to document PNG/PDF |
+| `presets` | `string[]` | No | Preset names (default: `full_picture`, `folded_skewed`) |
+| `doc_description` | `string` | No | Key fields to preserve |
+
+**Returns:** List of `{name, path, ok}` results.
+
+### penquify_generate_dataset
+
+Full pipeline: document data to PDF to realistic photos.
+
+**Parameters:**
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `doc_number` | `string` | Yes | Document number |
+| `date` | `string` | Yes | Date |
+| `emitter_name` | `string` | Yes | Emitter company name |
+| `receiver_name` | `string` | No | Receiver company name |
+| `oc_number` | `string` | No | Purchase order reference |
+| `items` | `array` | Yes | Items: `[{description, qty, unit, unit_price?}]` |
+| `presets` | `string[]` | No | Presets (default: `full_picture`, `folded_skewed`, `blurry`) |
+
+**Returns:** Document files + photo results.
+
+### penquify_text_to_config
+
+Convert natural language to a photo variation JSON config.
+
+**Parameters:**
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `description` | `string` | Yes | Natural language description |
+
+**Returns:** PhotoVariation JSON config.
+
+### penquify_list_presets
+
+List all available photo variation presets and camera models.
+
+**Parameters:** None.
+
+**Returns:** Lists of preset names, camera names, and preset details.
+
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `GEMINI_API_KEY` | -- | Required for photo generation |
+| `PENQUIFY_OUTPUT` | `~/penquify-output` | Output directory for generated files |

@@ -1,0 +1,88 @@
+---
+title: "Agent SDK Plugin"
+description: "Add penquify tools to Claude Agent SDK applications."
+icon: "puzzle-piece"
+---
+
+## Overview
+
+Penquify provides a ready-made set of tool functions compatible with the Claude Agent SDK. Import `penquify_tools` and pass them to your agent.
+
+## Installation
+
+```bash
+pip install penquify
+```
+
+## Usage
+
+```python
+from anthropic import Agent
+from penquify.agent_plugin import penquify_tools
+
+agent = Agent(
+    model="claude-sonnet-4-6",
+    tools=penquify_tools,
+)
+
+result = agent.run("Generate a dispatch guide for 50 boxes of frozen chicken from ACME Foods")
+```
+
+## Available Tools
+
+The `penquify_tools` list exports 4 functions:
+
+### generate_document
+
+Generate a logistics document (PDF + PNG).
+
+```python
+async def generate_document(
+    doc_number: str,         # Document number
+    date: str,               # Date (DD/MM/YYYY)
+    emitter_name: str,       # Emitter company name
+    items: list[dict],       # [{description, qty, unit, unit_price?}]
+    receiver_name: str = "", # Receiver company name
+    oc_number: str = "",     # Purchase order reference
+    observations: str = "",  # Handwritten notes
+    doc_type: str = "guia_despacho",  # Template type
+) -> dict:                   # Returns {html, png, pdf} file paths
+```
+
+### generate_photos
+
+Generate realistic photos from a document image.
+
+```python
+async def generate_photos(
+    image_path: str,                    # Path to clean document PNG
+    presets: list[str] | None = None,   # Preset names (default: full_picture, folded_skewed)
+    doc_description: str = "",          # Key fields to preserve
+) -> list[dict]:                        # Returns [{name, path, ok}]
+```
+
+### describe_to_config
+
+Convert natural language to photo variation config.
+
+```python
+async def describe_to_config(
+    description: str,   # e.g. "blurry photo with coffee stain"
+) -> dict:              # Returns PhotoVariation JSON config
+```
+
+### list_presets
+
+List available presets and cameras.
+
+```python
+def list_presets() -> dict:
+    # Returns {"presets": [...], "cameras": [...]}
+```
+
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `GEMINI_API_KEY` | -- | Required for photo generation |
+| `PENQUIFY_OUTPUT` | `~/penquify-output` | Output directory |

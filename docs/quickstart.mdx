@@ -1,0 +1,133 @@
+---
+title: "Quickstart"
+description: "Install penquify and generate your first synthetic document photos in under 5 minutes."
+icon: "rocket"
+---
+
+## Prerequisites
+
+- Python 3.10+
+- A [Gemini API key](https://aistudio.google.com/apikey) (for photo generation and verification)
+
+## Installation
+
+<CodeGroup>
+```bash pip
+pip install penquify
+```
+
+```bash pip (with extras)
+pip install penquify[api,mcp]
+```
+</CodeGroup>
+
+Install Playwright browsers (required for PDF/PNG rendering):
+
+```bash
+playwright install chromium
+```
+
+## Set Your API Key
+
+```bash
+export GEMINI_API_KEY=your-gemini-api-key
+```
+
+## Run the Demo
+
+```bash
+penquify demo
+```
+
+This will:
+
+1. Generate a demo dispatch guide (guia de despacho) with 7 line items
+2. Render it to HTML, PNG, and PDF in `output/`
+3. Generate 8 photo variations (full picture, folded, blurry, cropped, stained, etc.)
+
+Output structure:
+
+```
+output/
+  guia_despacho_01182034.html
+  guia_despacho_01182034.png
+  guia_despacho_01182034.pdf
+  photos/
+    photo_full_picture.png
+    photo_folded_skewed.png
+    photo_zoomed_detail.png
+    photo_blurry.png
+    photo_cropped_header.png
+    photo_strong_oblique.png
+    photo_coffee_stain.png
+    photo_stapled_stack.png
+```
+
+## Generate from Your Own Data
+
+Create a `doc.json` file:
+
+```json
+{
+  "header": {
+    "doc_type": "guia_despacho",
+    "doc_number": "00054321",
+    "date": "15/04/2026",
+    "emitter_name": "ACME FOODS S.A.",
+    "emitter_rut": "76.123.456-7",
+    "receiver_name": "DISTRIBUIDORA CENTRAL LTDA.",
+    "receiver_rut": "77.987.654-3",
+    "oc_number": "4500001234"
+  },
+  "items": [
+    {
+      "pos": 1,
+      "code": "AF-1001",
+      "description": "HARINA DE TRIGO PREMIUM 25KG",
+      "qty": 40,
+      "unit": "UN",
+      "unit_price": 12500,
+      "total": 500000
+    },
+    {
+      "pos": 2,
+      "code": "AF-2003",
+      "description": "ACEITE VEGETAL 5L",
+      "qty": 24,
+      "unit": "UN",
+      "unit_price": 6990,
+      "total": 167760
+    }
+  ],
+  "observations": "2 pallets. Harina: lote 2026-03."
+}
+```
+
+Generate the PDF:
+
+```bash
+penquify pdf --doc-json doc.json --output my-output/
+```
+
+Generate photos from any image:
+
+```bash
+penquify photos --image my-output/guia_despacho_00054321.png --presets full_picture blurry coffee_stain
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Core Concepts" href="/concepts" icon="lightbulb">
+    Understand the document model, photo variations, and verification pipeline.
+  </Card>
+  <Card title="API Reference" href="/api/overview" icon="code">
+    Use the REST API for programmatic access.
+  </Card>
+  <Card title="MCP Server" href="/integrations/mcp-server" icon="robot">
+    Connect penquify to Claude Desktop or Cursor.
+  </Card>
+  <Card title="Create Datasets" href="/create-dataset" icon="table">
+    Generate benchmark datasets at scale.
+  </Card>
+</CardGroup>

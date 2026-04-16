@@ -1,0 +1,117 @@
+---
+title: "Upload PDF"
+description: "Upload an existing PDF or image, auto-detect its schema, and generate photo variations."
+icon: "upload"
+---
+
+## Overview
+
+If you already have a printed document (PDF or image), penquify can detect its schema automatically and generate realistic photo variations with ground-truth verification.
+
+## The Upload Pipeline
+
+<Steps>
+  <Step title="Upload PDF or image">
+    Provide a file path (CLI/Python) or upload via API.
+  </Step>
+  <Step title="Convert to image">
+    If a PDF, penquify converts the first page to PNG using Playwright.
+  </Step>
+  <Step title="Detect schema">
+    Gemini 2.5 Flash extracts every field: document type, header fields, line items, totals. Returns structured JSON with confidence score.
+  </Step>
+  <Step title="Flatten for verification">
+    The detected schema is flattened to a `field_name -> value` dict that serves as ground truth.
+  </Step>
+  <Step title="Generate verified photos">
+    Photo variations are generated and verified against the detected schema.
+  </Step>
+</Steps>
+
+## Usage
+
+<Tabs>
+  <Tab title="CLI">
+    ```bash
+    penquify upload --image /path/to/invoice.pdf --output output/ \
+      --presets full_picture folded_skewed blurry
+    ```
+  </Tab>
+  <Tab title="Python">
+    ```python
+    import asyncio
+    from penquify.generators.upload import upload_and_generate
+
+    result = asyncio.run(upload_and_generate(
+        input_path="/path/to/invoice.pdf",
+        output_dir="output/uploaded",
+        preset_names=["full_picture", "folded_skewed", "blurry"],
+        max_retries=2,
+    ))
+
+    print(f"Type: {result['detected_schema']['document_type']}")
+    print(f"Items: {len(result['detected_schema'].get('items', []))}")
+    print(f"Ground truth fields: {len(result['ground_truth'])}")
+    for photo in result['photos']:
+        print(f"  {photo.get('verified', False)}: {photo.get('image_path', 'N/A')}")
+    ```
+  </Tab>
+  <Tab title="API">
+    ```bash
+    curl -X POST http://localhost:8000/generate/from-upload \
+      -F "file=@invoice.pdf" \
+      -F "presets=full_picture,folded_skewed,blurry"
+    ```
+  </Tab>
+</Tabs>
+
+## Detected Schema Format
+
+The vision model returns a structured schema:
+
+```json
+{
+  "document_type": "dispatch_guide",
+  "header": {
+    "doc_number": "00098765",
+    "date": "20/04/2026",
+    "emitter_name": "ACME LOGISTICS S.A.",
+    "receiver_name": "HOTEL PACIFIC S.A."
+  },
+  "items": [
+    {
+      "pos": 1,
+      "code": "AL-3001",
+      "description": "SALMON FRESCO FILETE",
+      "qty": 25,
+      "unit": "KG",
+      "unit_price": 14500,
+      "total": 362500
+    }
+  ],
+  "totals": {
+    "subtotal": 551500,
+    "tax": 104785,
+    "total": 656285
+  },
+  "confidence": 0.92
+}
+```
+
+## Output Files
+
+```
+output/uploaded/
+  source.png                    # converted from PDF (if PDF input)
+  detected_schema.json          # full detected schema
+  ground_truth.json             # flattened field -> value dict
+  photo_full_picture.png        # generated photos
+  photo_full_picture_verification.json
+  photo_full_picture_occlusion.json
+  photo_folded_skewed.png
+  ...
+```
+
+<Note>
+If no presets are specified, the upload pipeline defaults to `full_picture`, `folded_skewed`, and `blurry`.
+</Note>
