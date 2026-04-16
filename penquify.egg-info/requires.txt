@@ -1,0 +1,15 @@
+google-genai>=1.0
+Pillow>=10.0
+Jinja2>=3.1
+playwright>=1.40
+
+[all]
+penquify[api,db]
+
+[api]
+fastapi>=0.104
+uvicorn>=0.24
+
+[db]
+psycopg2-binary>=2.9
+sqlalchemy>=2.0

@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "penquify"
+version = "0.1.0"
+description = "Synthetic logistics document & photo dataset generator"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+dependencies = [
+    "google-genai>=1.0",
+    "Pillow>=10.0",
+    "Jinja2>=3.1",
+    "playwright>=1.40",
+]
+
+[project.optional-dependencies]
+api = ["fastapi>=0.104", "uvicorn>=0.24"]
+db = ["psycopg2-binary>=2.9", "sqlalchemy>=2.0"]
+all = ["penquify[api,db]"]
+
+[project.scripts]
+penquify = "penquify.cli:run"
+
+[tool.setuptools.packages.find]
+include = ["penquify*"]
