@@ -471,6 +471,103 @@
   </div>
 </section>
 
+<!-- DEEP USE CASE -->
+<section style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="container">
+    <div style="font-size:11px;color:var(--orange);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Case Study</div>
+    <h2>Automating invoice reception with only POs</h2>
+    <p class="section-sub">A real scenario where penquify was built out of necessity.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-bottom:32px">
+      <!-- The problem -->
+      <div class="card" style="border-left:3px solid var(--red)">
+        <h3 style="color:var(--red)">The problem</h3>
+        <p style="margin-top:8px">We had a warehouse reception agent that needed to:</p>
+        <ul style="font-size:13px;color:var(--text2);margin-top:8px;padding-left:16px;line-height:2">
+          <li>Extract data from photos of <strong style="color:var(--text)">dispatch guides</strong> taken by bodegueros</li>
+          <li>Match extracted items against <strong style="color:var(--text)">purchase orders</strong> in SAP</li>
+          <li>Handle <strong style="color:var(--text)">name mismatches</strong> (supplier says "PAPA PREFRITA CONGELADA CORTE GRUESO", SAP says "PAPAS FRITAS 10MM")</li>
+          <li>Handle <strong style="color:var(--text)">unit mismatches</strong> (guide says 12 CJ, PO says 150 KG — no weight-per-case given)</li>
+          <li>Handle <strong style="color:var(--text)">quantity discrepancies</strong> at two levels: guide vs PO, then physical count vs guide</li>
+          <li>Create <strong style="color:var(--text)">SAP material documents</strong> (mov 101) with the correct batch, matching the PO position</li>
+        </ul>
+        <p style="font-size:13px;color:var(--text3);margin-top:8px">We had POs in SAP. We had zero dispatch guides. We needed hundreds of realistic test photos to validate the pipeline end-to-end.</p>
+      </div>
+
+      <!-- What penquify did -->
+      <div class="card" style="border-left:3px solid var(--green)">
+        <h3 style="color:var(--green)">What penquify did</h3>
+        <div style="font-size:13px;color:var(--text2);margin-top:8px;line-height:2">
+          <div style="margin-bottom:12px">
+            <strong style="color:var(--accent2)">1. Generated dispatch guides from PO data</strong><br>
+            Read the PO from SAP (items, quantities, supplier). Generated a realistic dispatch guide PDF with <em>different names</em> — the way a real supplier would write them, not SAP master data names.
+          </div>
+          <div style="margin-bottom:12px">
+            <strong style="color:var(--accent2)">2. Introduced realistic discrepancies</strong><br>
+            Some items with different units (CJ vs KG, UN vs KG — no conversion on the guide). Some with 5% less quantity. Some with supplier-specific jargon.
+          </div>
+          <div style="margin-bottom:12px">
+            <strong style="color:var(--accent2)">3. Generated warehouse photos</strong><br>
+            6 variations per document: clean handheld, folded, blurry, coffee-stained, cropped header, zoomed detail. Each looks like a bodeguero snapped it at a loading dock.
+          </div>
+          <div style="margin-bottom:12px">
+            <strong style="color:var(--accent2)">4. Verified every field</strong><br>
+            Ground truth JSON for each photo. Occlusion manifest saying exactly which fields are hidden in the coffee-stained or cropped versions.
+          </div>
+          <div>
+            <strong style="color:var(--accent2)">5. Fed to the agent pipeline</strong><br>
+            Photo → vision extraction → PO matching → discrepancy detection → SAP write. Tested 100+ scenarios in hours instead of months of real operations.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visual: name/unit mismatch example -->
+    <div class="card" style="max-width:800px;margin:0 auto">
+      <h3 style="margin-bottom:12px">The kind of mismatches real documents have</h3>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px;font-family:monospace">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border)">
+              <th style="text-align:left;padding:8px;color:var(--text3)">Guide (supplier)</th>
+              <th style="text-align:left;padding:8px;color:var(--text3)">PO (SAP)</th>
+              <th style="text-align:left;padding:8px;color:var(--text3)">Challenge</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px">PAPA PREFRITA CONGELADA<br><span style="color:var(--orange)">12 CJ</span></td>
+              <td style="padding:8px">PAPAS FRITAS 10MM<br><span style="color:var(--accent2)">150 KG</span></td>
+              <td style="padding:8px;color:var(--red)">Different name + different unit. Guide doesn't say weight per case. Agent must ask.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px">MOZZARELLA RALLADA PREMIUM<br><span style="color:var(--orange)">115 KG</span></td>
+              <td style="padding:8px">QUESO MOZZARELLA RALLADO<br><span style="color:var(--accent2)">120 KG</span></td>
+              <td style="padding:8px;color:var(--orange)">Different name + 5kg short. Agent must flag discrepancy.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px">JENGIBRE FRESCO PELADO<br><span style="color:var(--orange)">2 UN</span></td>
+              <td style="padding:8px">JENGIBRE<br><span style="color:var(--accent2)">0.5 KG</span></td>
+              <td style="padding:8px;color:var(--red)">Unit mismatch (UN vs KG). No weight per unit on guide. Agent must ask.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px">LIMON SUTIL FRESCO<br><span style="color:var(--orange)">24 KG</span></td>
+              <td style="padding:8px">LIMON SUTIL<br><span style="color:var(--accent2)">25 L</span></td>
+              <td style="padding:8px;color:var(--red)">KG vs L + 1 unit short. Two problems at once.</td>
+            </tr>
+            <tr>
+              <td style="padding:8px">MENTA FRESCA ATADO<br><span style="color:var(--orange)">10 UN</span></td>
+              <td style="padding:8px">MENTA FRESCA<br><span style="color:var(--accent2)">2 KG</span></td>
+              <td style="padding:8px;color:var(--red)">Atados vs KG. Guide doesn't say weight per atado. Agent must ask.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:11px;color:var(--text3);margin-top:12px">Penquify generates these mismatches programmatically. The ground truth knows the correct mapping. Your pipeline either handles it or fails — and you know exactly where.</p>
+    </div>
+  </div>
+</section>
+
 <!-- QUICK START -->
 <section>
   <div class="container" style="text-align:center">
