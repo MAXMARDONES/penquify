@@ -22,31 +22,53 @@ A Python toolkit that takes structured data and produces photorealistic smartpho
 
 <br/>
 
+[Website](https://penquify.com) |
+[Docs](https://docs.penquify.com) |
+[GitHub](https://github.com/MAXMARDONES/penquify)
+
 </div>
 
 ---
 
 ## Demo
 
-```
-JSON payload ──► HTML template ──► PDF / PNG ──► Gemini image gen ──► realistic photo
-```
+**Structured data in → realistic photo out.**
 
-**Input:** structured document data (header + items)
+<div align="center">
+<table>
+<tr>
+<td align="center"><strong>Input: Clean PDF</strong></td>
+<td align="center"><strong>→</strong></td>
+<td align="center"><strong>Output: Warehouse Photo</strong></td>
+</tr>
+<tr>
+<td><img src="landing/assets/clean_document.png" width="280" alt="Clean PDF"/></td>
+<td>→</td>
+<td><img src="landing/assets/photo_full_picture.png" width="280" alt="Realistic photo"/></td>
+</tr>
+</table>
+</div>
 
-```json
-{
-  "header": {"doc_number": "00847291", "emitter_name": "ACME FOODS LTDA.", "oc_number": "4500000316"},
-  "items": [
-    {"description": "FROZEN POTATO WEDGES", "qty": 12, "unit": "CJ", "unit_price": 15000},
-    {"description": "MOZZARELLA SHREDDED", "qty": 115, "unit": "KG", "unit_price": 4900}
-  ]
-}
-```
+Same document. Same data. But now it looks like someone snapped it with a 2017 Samsung at a loading dock.
 
-**Output:** clean PDF + N realistic photos at different difficulty levels
+### Every variation from the same PDF
 
-<!-- TODO: add before/after images here once repo has demo photos -->
+<div align="center">
+<table>
+<tr>
+<td align="center"><img src="landing/assets/photo_full_picture.png" width="200"/><br/><code>full_picture</code></td>
+<td align="center"><img src="landing/assets/photo_folded_skewed.png" width="200"/><br/><code>folded_skewed</code></td>
+<td align="center"><img src="landing/assets/photo_blurry.png" width="200"/><br/><code>blurry</code></td>
+</tr>
+<tr>
+<td align="center"><img src="landing/assets/photo_coffee_stain.png" width="200"/><br/><code>coffee_stain</code></td>
+<td align="center"><img src="landing/assets/photo_cropped_header.png" width="200"/><br/><code>cropped_header</code></td>
+<td align="center"><img src="landing/assets/photo_zoomed_detail.png" width="200"/><br/><code>zoomed_detail</code></td>
+</tr>
+</table>
+</div>
+
+8 built-in presets + infinite custom via JSON or natural language.
 
 ```bash
 penquify demo  # generates PDF + 8 photo variations in ./output/
@@ -341,5 +363,8 @@ MIT
 ---
 
 <div align="center">
-<sub>Built by <a href="https://github.com/MAXMARDONES">Max Mardones</a> — CEO @ <a href="https://getsmartup.ai">getsmartup.ai</a></sub>
+
+[penquify.com](https://penquify.com) | [Docs](https://docs.penquify.com) | [GitHub](https://github.com/MAXMARDONES/penquify)
+
+<sub>Built by <a href="https://github.com/MAXMARDONES">Max Mardones</a></sub>
 </div>
