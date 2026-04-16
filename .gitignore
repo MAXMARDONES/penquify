@@ -5,3 +5,13 @@ output/
 dist/
 build/
 .env
+.env.*
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+.pytest_cache/
+htmlcov/
+.coverage
