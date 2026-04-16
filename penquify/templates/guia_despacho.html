@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<title>Guia de Despacho N {{ header.doc_number }} — {{ header.emitter_name }}</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Courier New', monospace; font-size: 11px; color: #1a1a1a; background: white; }
+  .page { width: 210mm; min-height: 280mm; padding: 12mm 15mm; position: relative; }
+  .header-box { border: 2px solid #333; padding: 8px 12px; margin-bottom: 8px; }
+  .header-row { display: flex; justify-content: space-between; align-items: flex-start; }
+  .company-info { flex: 1; }
+  .company-name { font-size: 15px; font-weight: bold; }
+  .company-detail { font-size: 10px; line-height: 1.5; margin-top: 4px; }
+  .doc-box { border: 2px solid #c00; padding: 8px 14px; text-align: center; min-width: 200px; }
+  .doc-type { font-size: 13px; font-weight: bold; color: #c00; }
+  .doc-number { font-size: 18px; font-weight: bold; color: #c00; margin-top: 2px; }
+  .doc-sii { font-size: 8px; color: #666; margin-top: 4px; }
+  .section { margin: 8px 0; }
+  .section-title { font-weight: bold; font-size: 10px; background: #eee; padding: 3px 8px; border: 1px solid #ccc; margin-bottom: 4px; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 20px; font-size: 10px; padding: 4px 8px; }
+  .info-grid .label { font-weight: bold; }
+  table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 4px; }
+  th { background: #e8e8e8; border: 1px solid #999; padding: 4px 6px; text-align: left; font-size: 9px; }
+  td { border: 1px solid #bbb; padding: 3px 6px; }
+  td.num { text-align: right; }
+  tr:nth-child(even) { background: #fafafa; }
+  .oc-ref { border: 2px solid #0066cc; background: #f0f6ff; padding: 6px 12px; margin: 8px 0; font-size: 12px; }
+  .oc-ref b { color: #0066cc; font-size: 14px; }
+  .total-row { font-weight: bold; background: #e8e8e8 !important; }
+  .obs-box { border: 1px solid #ccc; padding: 6px 10px; min-height: 30px; margin-top: 6px; font-size: 10px; font-style: italic; font-family: 'Segoe Script', 'Comic Sans MS', cursive; color: #1a3a8a; }
+  .cedible { border: 1px dashed #999; padding: 6px 10px; margin-top: 10px; font-size: 9px; }
+  .handwritten { font-family: 'Segoe Script', 'Comic Sans MS', cursive; color: #1a3a8a; }
+  .signatures { display: flex; justify-content: space-between; margin-top: 30px; }
+  .sig-box { text-align: center; width: 35%; }
+  .sig-line { border-top: 1px solid #333; margin-top: 40px; padding-top: 4px; font-size: 9px; }
+  .stamp { position: absolute; transform: rotate(-12deg); opacity: 0.35; font-size: 28px; font-weight: bold; color: #0066aa; border: 3px solid #0066aa; border-radius: 8px; padding: 8px 20px; bottom: 60px; right: 60px; }
+  .barcode { font-family: 'Libre Barcode 39', 'Courier New'; font-size: 32px; letter-spacing: 2px; margin: 4px 0; }
+</style></head><body>
+<div class="page" id="page1">
+
+  <div class="header-box"><div class="header-row">
+    <div class="company-info">
+      <div class="company-name">{{ header.emitter_name }}</div>
+      <div class="company-detail">
+        RUT: {{ header.emitter_rut }}<br>
+        Giro: {{ header.emitter_giro }}<br>
+        Direccion: {{ header.emitter_address }}<br>
+        Fono: {{ header.emitter_phone }}{% if header.emitter_email %} — {{ header.emitter_email }}{% endif %}<br>
+      </div>
+    </div>
+    <div class="doc-box">
+      <div class="doc-type">GUIA DE DESPACHO</div>
+      <div class="doc-type" style="font-size:10px">ELECTRONICA</div>
+      <div class="doc-number">N&deg; {{ header.doc_number }}</div>
+      <div class="doc-sii">{{ header.sii_office }}<br>{{ header.sii_resolution }}</div>
+    </div>
+  </div></div>
+
+  <div style="text-align:center; margin: 4px 0;">
+    <div class="barcode">*{{ header.doc_number }}*</div>
+    <div style="font-size:8px; color:#666;">Timbre Electronico SII — Verificar en www.sii.cl</div>
+  </div>
+
+  <div class="section"><div class="section-title">DATOS DEL RECEPTOR</div>
+    <div class="info-grid">
+      <div><span class="label">Razon Social:</span> {{ header.receiver_name }}</div>
+      <div><span class="label">RUT:</span> {{ header.receiver_rut }}</div>
+      <div><span class="label">Giro:</span> {{ header.receiver_giro }}</div>
+      <div><span class="label">Direccion:</span> {{ header.receiver_address }}</div>
+      <div><span class="label">Contacto:</span> {{ header.receiver_contact }}</div>
+    </div>
+  </div>
+
+  {% if header.oc_number %}
+  <div class="oc-ref">
+    Referencia Orden de Compra: <b>N&deg; {{ header.oc_number }}</b>
+    {% if header.oc_date %}&nbsp;|&nbsp; Fecha OC: {{ header.oc_date }}{% endif %}
+    {% if header.payment_terms %}&nbsp;|&nbsp; {{ header.payment_terms }}{% endif %}
+  </div>
+  {% endif %}
+
+  <div class="section"><div class="section-title">DATOS DEL DESPACHO</div>
+    <div class="info-grid">
+      <div><span class="label">Fecha emision:</span> {{ header.date }}</div>
+      <div><span class="label">Fecha despacho:</span> {{ header.dispatch_date or header.date }}</div>
+      <div><span class="label">Patente vehiculo:</span> {{ header.vehicle_plate }}</div>
+      <div><span class="label">Tipo traslado:</span> {{ header.transport_type }}</div>
+      <div><span class="label">Chofer:</span> {{ header.driver_name }}</div>
+      <div><span class="label">RUT Chofer:</span> {{ header.driver_rut }}</div>
+      {% if header.temperature %}<div><span class="label">Temperatura:</span> {{ header.temperature }}</div>{% endif %}
+    </div>
+  </div>
+
+  <div class="section"><div class="section-title">DETALLE DE PRODUCTOS</div>
+    <table><thead><tr>
+      <th style="width:35px">ITEM</th><th style="width:80px">CODIGO</th>
+      <th>DESCRIPCION</th><th style="width:60px">CANT.</th>
+      <th style="width:40px">U.M.</th><th style="width:70px">P. UNIT.</th>
+      <th style="width:80px">TOTAL</th>
+    </tr></thead><tbody>
+    {% for item in items %}
+      <tr>
+        <td class="num">{{ loop.index }}</td>
+        <td>{{ item.code }}</td>
+        <td>{{ item.description }}</td>
+        <td class="num">{{ item.qty }}</td>
+        <td>{{ item.unit }}</td>
+        <td class="num">${{ "{:,.0f}".format(item.unit_price) }}</td>
+        <td class="num">${{ "{:,.0f}".format(item.total or item.qty * item.unit_price) }}</td>
+      </tr>
+    {% endfor %}
+      <tr class="total-row"><td colspan="6" style="text-align:right; padding-right:10px;">SUBTOTAL NETO</td><td class="num">${{ "{:,.0f}".format(subtotal) }}</td></tr>
+      <tr class="total-row"><td colspan="6" style="text-align:right; padding-right:10px;">IVA 19%</td><td class="num">${{ "{:,.0f}".format(iva) }}</td></tr>
+      <tr class="total-row" style="font-size:12px;"><td colspan="6" style="text-align:right; padding-right:10px;">TOTAL</td><td class="num">${{ "{:,.0f}".format(total) }}</td></tr>
+    </tbody></table>
+  </div>
+
+  {% if observations %}
+  <div class="section"><div class="section-title">OBSERVACIONES</div>
+    <div class="obs-box">{{ observations }}</div>
+  </div>
+  {% endif %}
+
+  <div class="cedible">
+    <b>ACUSE DE RECIBO</b> — Conforme Ley 19.983: El receptor declara haber recibido las mercaderias descritas.
+    <div style="margin-top:8px; display:flex; justify-content:space-between;">
+      <div>Nombre: <span class="handwritten">{{ header.received_by }}</span></div>
+      <div>RUT: <span class="handwritten">{{ header.received_rut }}</span></div>
+      <div>Fecha: <span class="handwritten">{{ header.received_date or header.date }}</span></div>
+    </div>
+    <div style="margin-top:4px;">Firma: <span class="handwritten" style="font-size:14px;">{{ (header.received_by or "").split()[0][0] }}. {{ (header.received_by or "").split()[-1] if header.received_by else "" }}</span></div>
+  </div>
+
+  <div style="margin-top:15px; border-top:1px solid #ccc; padding-top:10px;">
+    <div class="signatures">
+      <div class="sig-box"><div class="sig-line">DESPACHADOR<br>{{ header.driver_name }}<br>RUT: {{ header.driver_rut }}</div></div>
+      <div class="sig-box"><div class="sig-line">RECEPTOR<br>{{ header.received_by }}<br>{{ header.receiver_contact }}</div></div>
+    </div>
+  </div>
+
+  {% if header.received_by %}
+  <div class="stamp">RECIBIDO<br><span style="font-size:12px;">{{ header.received_date or header.date }}</span><br><span style="font-size:10px;">{{ header.receiver_contact }}</span></div>
+  {% endif %}
+
+  <div style="margin-top:10px; text-align:center; font-size:8px; color:#999;">
+    Documento tributario electronico — Timbre SII verificable en www.sii.cl<br>
+    {{ header.emitter_name }} — {{ header.sii_resolution }}
+  </div>
+
+</div></body></html>
