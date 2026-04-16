@@ -1,0 +1,24 @@
+services:
+  penquify:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - DATABASE_URL=${DATABASE_URL:-}
+    volumes:
+      - ./output:/app/output
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: penquify
+      POSTGRES_USER: penquify
+      POSTGRES_PASSWORD: penquify
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
