@@ -1,0 +1,43 @@
+{
+  "total": 3,
+  "verified": 0,
+  "failed": 3,
+  "results": [
+    {
+      "name": "photo_full_picture.png",
+      "verified": false,
+      "attempts": 2,
+      "summary": {
+        "total_fields": 55,
+        "matched": 46,
+        "mismatched": 9,
+        "illegible": 0,
+        "not_visible": 0
+      }
+    },
+    {
+      "name": "photo_coffee_stain.png",
+      "verified": false,
+      "attempts": 2,
+      "summary": {
+        "total_fields": 55,
+        "matched": 48,
+        "mismatched": 7,
+        "illegible": 0,
+        "not_visible": 0
+      }
+    },
+    {
+      "name": "photo_cropped_header.png",
+      "verified": false,
+      "attempts": 2,
+      "summary": {
+        "total_fields": 55,
+        "matched": 51,
+        "mismatched": 4,
+        "illegible": 0,
+        "not_visible": 0
+      }
+    }
+  ]
+}

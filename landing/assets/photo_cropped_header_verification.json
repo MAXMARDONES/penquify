@@ -1,0 +1,396 @@
+{
+  "fields": {
+    "doc_number": {
+      "source_value": "01182034",
+      "extracted_value": "01182034",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "date": {
+      "source_value": "16/04/2026",
+      "extracted_value": "16/04/2026",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "emitter_name": {
+      "source_value": "COMERCIAL AGRO SUR LTDA.",
+      "extracted_value": "COMERCIAL AGRO SUR LTDA.",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "emitter_rut": {
+      "source_value": "77.234.567-1",
+      "extracted_value": "77.234.361-1",
+      "status": "mismatch",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "receiver_name": {
+      "source_value": "ACME LOGISTICS S.A.",
+      "extracted_value": "ACME LOGISTICS S.A.",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "receiver_rut": {
+      "source_value": "96.754.321-8",
+      "extracted_value": "96.754.321-8",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "oc_number": {
+      "source_value": "4500000316",
+      "extracted_value": "450000316",
+      "status": "mismatch",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "oc_date": {
+      "source_value": "29/12/2025",
+      "extracted_value": "29/12/2025",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "vehicle_plate": {
+      "source_value": "WFKP-91",
+      "extracted_value": "WFRP-91",
+      "status": "mismatch",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "driver_name": {
+      "source_value": "Rodrigo Fuentes M.",
+      "extracted_value": "Rodrigo Fuentes M.",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "received_by": {
+      "source_value": "Carlos Mendez",
+      "extracted_value": "Carlos Mendez",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_1_code": {
+      "source_value": "AS-4010",
+      "extracted_value": "AS-4010",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_1_description": {
+      "source_value": "PAPA PREFRITA CONGELADA CORTE GRUESO",
+      "extracted_value": "PAPA PREFRITA CONGELADA CORTE GRUESO",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_1_qty": {
+      "source_value": "12",
+      "extracted_value": "12",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_1_unit": {
+      "source_value": "CJ",
+      "extracted_value": "CJ",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_1_unit_price": {
+      "source_value": "15000",
+      "extracted_value": "$15,000",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_1_total": {
+      "source_value": "180000",
+      "extracted_value": "$180,000",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_2_code": {
+      "source_value": "AS-2050",
+      "extracted_value": "AS-2050",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_2_description": {
+      "source_value": "MOZZARELLA RALLADA PREMIUM (bolsa 5kg)",
+      "extracted_value": "MOZZARELLA RALLADA PREMIUM (bolsa 5kg)",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_2_qty": {
+      "source_value": "115",
+      "extracted_value": "115",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_2_unit": {
+      "source_value": "KG",
+      "extracted_value": "KG",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_2_unit_price": {
+      "source_value": "4900",
+      "extracted_value": "$4,900",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_2_total": {
+      "source_value": "563500",
+      "extracted_value": "$563,500",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_3_code": {
+      "source_value": "AS-7015",
+      "extracted_value": "AS-7015",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_3_description": {
+      "source_value": "FRUTILLA FRESCA SELECCION (bandeja 1kg)",
+      "extracted_value": "FRUTILLA FRESCA SELECCION (bandeja 1kg)",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_3_qty": {
+      "source_value": "2",
+      "extracted_value": "2",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_3_unit": {
+      "source_value": "KG",
+      "extracted_value": "KG",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_3_unit_price": {
+      "source_value": "5990",
+      "extracted_value": "$5,990",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_3_total": {
+      "source_value": "11980",
+      "extracted_value": "$11,980",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_4_code": {
+      "source_value": "AS-7042",
+      "extracted_value": "AS-7042",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_4_description": {
+      "source_value": "JENGIBRE FRESCO PELADO",
+      "extracted_value": "JENGIBRE FRESCO PELADO",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_4_qty": {
+      "source_value": "2",
+      "extracted_value": "2",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_4_unit": {
+      "source_value": "UN",
+      "extracted_value": "UN",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_4_unit_price": {
+      "source_value": "1500",
+      "extracted_value": "$1,500",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_4_total": {
+      "source_value": "3000",
+      "extracted_value": "$3,000",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_5_code": {
+      "source_value": "AS-7028",
+      "extracted_value": "AS-7022",
+      "status": "mismatch",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_5_description": {
+      "source_value": "LIMON DE PICA FRESCO GRANEL",
+      "extracted_value": "LIMON DE PICA FRESCO GRANEL",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_5_qty": {
+      "source_value": "20",
+      "extracted_value": "20",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_5_unit": {
+      "source_value": "KG",
+      "extracted_value": "KG",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_5_unit_price": {
+      "source_value": "2800",
+      "extracted_value": "$2,800",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_5_total": {
+      "source_value": "56000",
+      "extracted_value": "$56,000",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_6_code": {
+      "source_value": "AS-7029",
+      "extracted_value": "AS-7029",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_6_description": {
+      "source_value": "LIMON SUTIL FRESCO (malla 5kg)",
+      "extracted_value": "LIMON SUTIL FRESCO (malla 5kg)",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_6_qty": {
+      "source_value": "24",
+      "extracted_value": "24",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_6_unit": {
+      "source_value": "KG",
+      "extracted_value": "KG",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_6_unit_price": {
+      "source_value": "3200",
+      "extracted_value": "$3,200",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_6_total": {
+      "source_value": "76800",
+      "extracted_value": "$76,800",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_7_code": {
+      "source_value": "AS-7055",
+      "extracted_value": "AS-7055",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_7_description": {
+      "source_value": "MENTA FRESCA ATADO",
+      "extracted_value": "MENTA FRESCA ATADO",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_7_qty": {
+      "source_value": "10",
+      "extracted_value": "10",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_7_unit": {
+      "source_value": "UN",
+      "extracted_value": "UN",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_7_unit_price": {
+      "source_value": "1390",
+      "extracted_value": "$1,390",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "item_7_total": {
+      "source_value": "13900",
+      "extracted_value": "$13,900",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "subtotal": {
+      "source_value": "905180",
+      "extracted_value": "$905,180",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    },
+    "total": {
+      "source_value": "1077164",
+      "extracted_value": "$1,077,164",
+      "status": "match",
+      "confidence": 0.95,
+      "extraction_reason": null
+    }
+  },
+  "summary": {
+    "total_fields": 55,
+    "matched": 51,
+    "mismatched": 4,
+    "illegible": 0,
+    "not_visible": 0
+  }
+}

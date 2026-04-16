@@ -1,0 +1,89 @@
+{
+  "doc_number": "visible",
+  "date": "visible",
+  "emitter_name": "visible",
+  "emitter_rut": {
+    "status": "mismatch",
+    "extracted": "77.234.361-1",
+    "expected": "77.234.567-1",
+    "confidence": 0.95,
+    "reasons": [
+      "hallucinated_or_garbled_by_image_gen"
+    ]
+  },
+  "receiver_name": "visible",
+  "receiver_rut": "visible",
+  "oc_number": {
+    "status": "mismatch",
+    "extracted": "450000316",
+    "expected": "4500000316",
+    "confidence": 0.95,
+    "reasons": [
+      "hallucinated_or_garbled_by_image_gen"
+    ]
+  },
+  "oc_date": "visible",
+  "vehicle_plate": {
+    "status": "mismatch",
+    "extracted": "WFRP-91",
+    "expected": "WFKP-91",
+    "confidence": 0.95,
+    "reasons": [
+      "hallucinated_or_garbled_by_image_gen"
+    ]
+  },
+  "driver_name": "visible",
+  "received_by": "visible",
+  "item_1_code": "visible",
+  "item_1_description": "visible",
+  "item_1_qty": "visible",
+  "item_1_unit": "visible",
+  "item_1_unit_price": "visible",
+  "item_1_total": "visible",
+  "item_2_code": "visible",
+  "item_2_description": "visible",
+  "item_2_qty": "visible",
+  "item_2_unit": "visible",
+  "item_2_unit_price": "visible",
+  "item_2_total": "visible",
+  "item_3_code": "visible",
+  "item_3_description": "visible",
+  "item_3_qty": "visible",
+  "item_3_unit": "visible",
+  "item_3_unit_price": "visible",
+  "item_3_total": "visible",
+  "item_4_code": "visible",
+  "item_4_description": "visible",
+  "item_4_qty": "visible",
+  "item_4_unit": "visible",
+  "item_4_unit_price": "visible",
+  "item_4_total": "visible",
+  "item_5_code": {
+    "status": "mismatch",
+    "extracted": "AS-7022",
+    "expected": "AS-7028",
+    "confidence": 0.95,
+    "reasons": [
+      "hallucinated_or_garbled_by_image_gen"
+    ]
+  },
+  "item_5_description": "visible",
+  "item_5_qty": "visible",
+  "item_5_unit": "visible",
+  "item_5_unit_price": "visible",
+  "item_5_total": "visible",
+  "item_6_code": "visible",
+  "item_6_description": "visible",
+  "item_6_qty": "visible",
+  "item_6_unit": "visible",
+  "item_6_unit_price": "visible",
+  "item_6_total": "visible",
+  "item_7_code": "visible",
+  "item_7_description": "visible",
+  "item_7_qty": "visible",
+  "item_7_unit": "visible",
+  "item_7_unit_price": "visible",
+  "item_7_total": "visible",
+  "subtotal": "visible",
+  "total": "visible"
+}
