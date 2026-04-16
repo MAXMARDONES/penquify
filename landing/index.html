@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Penquify — Synthetic document datasets for vision AI</title>
+<meta name="description" content="Generate photorealistic document photos with ground-truth verification. Train OCR, benchmark vision models, test agentic document pipelines. API, UI, or Python.">
+<meta property="og:title" content="Penquify — Make your documents worse">
+<meta property="og:description" content="Synthetic document dataset generator with ground-truth verification for vision AI pipelines.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>">
+<style>
+  :root { --bg: #09090b; --surface: #18181b; --surface2: #1e1e22; --border: #27272a; --text: #fafafa; --text2: #a1a1aa; --text3: #71717a; --accent: #6366f1; --accent2: #818cf8; --green: #22c55e; --orange: #f59e0b; --red: #ef4444; --cyan: #06b6d4; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  a { color: var(--accent2); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  h2 { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 12px; }
+  .section-sub { color: var(--text2); font-size: 16px; margin-bottom: 40px; max-width: 600px; }
+  section { padding: 80px 24px; }
+
+  /* Nav */
+  nav { position: fixed; top: 0; width: 100%; background: rgba(9,9,11,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); z-index: 100; padding: 12px 0; }
+  nav .inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; }
+  nav .logo { font-size: 18px; font-weight: 700; }
+  nav .logo span { color: var(--accent2); }
+  nav .links { display: flex; gap: 20px; font-size: 14px; color: var(--text2); align-items: center; }
+  nav .links a:hover { color: var(--text); text-decoration: none; }
+  .btn-sm { padding: 6px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; }
+  .btn-sm.primary { background: var(--accent); color: white; }
+  .btn-sm.ghost { border: 1px solid var(--border); color: var(--text); }
+  .btn-sm:hover { opacity: 0.9; text-decoration: none; }
+
+  /* Hero */
+  .hero { padding: 130px 24px 60px; text-align: center; }
+  .hero .badge { display: inline-block; background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.3); color: var(--accent2); padding: 4px 14px; border-radius: 20px; font-size: 13px; margin-bottom: 24px; }
+  .hero h1 { font-size: clamp(32px, 5vw, 52px); font-weight: 800; letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 20px; max-width: 700px; margin-left: auto; margin-right: auto; }
+  .hero h1 .gradient { background: linear-gradient(135deg, var(--accent2), var(--orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero p { font-size: 17px; color: var(--text2); max-width: 580px; margin: 0 auto 32px; }
+  .hero .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn { padding: 12px 28px; border-radius: 8px; font-size: 15px; font-weight: 600; display: inline-block; }
+  .btn.primary { background: var(--accent); color: white; }
+  .btn.secondary { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+  .btn:hover { opacity: 0.9; text-decoration: none; }
+
+  /* Problem */
+  .problem { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .problem .container { max-width: 800px; }
+  .problem blockquote { border-left: 3px solid var(--accent); padding-left: 20px; font-size: 18px; color: var(--text2); font-style: italic; line-height: 1.7; }
+  .problem blockquote strong { color: var(--text); font-style: normal; }
+
+  /* Flow */
+  .pipeline { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 32px; max-width: 900px; margin: 0 auto 40px; }
+  .pipeline-step { display: flex; align-items: flex-start; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .pipeline-step:last-child { border-bottom: none; }
+  .pipeline-num { background: var(--accent); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .pipeline-step h4 { font-size: 14px; font-weight: 600; }
+  .pipeline-step p { font-size: 13px; color: var(--text2); }
+  .pipeline-tag { display: inline-block; padding: 1px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-left: 8px; }
+  .tag-api { background: rgba(34,197,94,0.1); color: var(--green); }
+  .tag-ui { background: rgba(99,102,241,0.1); color: var(--accent2); }
+  .tag-new { background: rgba(245,158,11,0.1); color: var(--orange); }
+
+  /* Features grid */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+  .card .icon { font-size: 24px; margin-bottom: 10px; }
+  .card h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .card p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .card code { background: rgba(99,102,241,0.1); color: var(--accent2); padding: 1px 5px; border-radius: 3px; font-size: 11px; }
+
+  /* Entry points */
+  .entry-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+  .entry { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+  .entry .label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .entry h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .entry p { font-size: 12px; color: var(--text2); }
+
+  /* Verification pipeline */
+  .verify-flow { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; justify-content: center; margin: 32px 0; }
+  .verify-node { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; font-size: 12px; text-align: center; }
+  .verify-node strong { display: block; font-size: 11px; color: var(--accent2); }
+  .verify-arrow { color: var(--text3); font-size: 18px; }
+
+  /* Code */
+  .code-block { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; font-family: 'SF Mono', monospace; font-size: 13px; line-height: 1.8; overflow-x: auto; max-width: 700px; margin: 0 auto; }
+  .code-block .c { color: #6b7280; }
+  .code-block .g { color: var(--green); }
+  .code-block .o { color: var(--orange); }
+  .code-block .p { color: var(--accent2); }
+
+  /* Presets */
+  .preset-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+  .preset { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px; text-align: center; }
+  .preset .name { font-family: monospace; font-size: 12px; font-weight: 600; color: var(--accent2); }
+  .preset .desc { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* Pricing */
+  .pricing { text-align: center; }
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 960px; margin: 0 auto; }
+  .plan { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 32px 28px; text-align: left; position: relative; }
+  .plan.featured { border-color: var(--accent); }
+  .plan.featured::before { content: 'MOST POPULAR'; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; padding: 2px 12px; border-radius: 10px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; }
+  .plan .plan-name { font-size: 14px; color: var(--text2); font-weight: 500; }
+  .plan .price { font-size: 36px; font-weight: 800; margin: 8px 0; letter-spacing: -1px; }
+  .plan .price span { font-size: 14px; font-weight: 400; color: var(--text2); }
+  .plan .desc { font-size: 13px; color: var(--text2); margin-bottom: 20px; }
+  .plan ul { list-style: none; margin-bottom: 24px; }
+  .plan li { font-size: 13px; padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; gap: 8px; }
+  .plan li::before { content: '✓'; color: var(--green); font-weight: 700; }
+  .plan .plan-btn { display: block; text-align: center; padding: 10px; border-radius: 8px; font-size: 14px; font-weight: 600; }
+  .plan .plan-btn.primary { background: var(--accent); color: white; }
+  .plan .plan-btn.ghost { border: 1px solid var(--border); color: var(--text); }
+
+  /* Use cases */
+  .use-cases { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .use-case { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; }
+  .use-case .tag { font-size: 11px; font-weight: 600; color: var(--orange); margin-bottom: 8px; }
+  .use-case h3 { font-size: 15px; margin-bottom: 6px; }
+  .use-case p { font-size: 13px; color: var(--text2); }
+
+  /* Footer */
+  .bottom-cta { text-align: center; background: linear-gradient(180deg, var(--bg) 0%, rgba(99,102,241,0.04) 100%); }
+  .bottom-cta h2 { font-size: 32px; font-weight: 800; margin-bottom: 12px; }
+  .bottom-cta p { color: var(--text2); margin-bottom: 32px; }
+  footer { border-top: 1px solid var(--border); padding: 24px; text-align: center; font-size: 13px; color: var(--text3); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="inner">
+    <div class="logo">penq<span>uify</span></div>
+    <div class="links">
+      <a href="#how-it-works">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="https://github.com/MAXMARDONES/penquify" class="btn-sm ghost">GitHub</a>
+      <a href="#pricing" class="btn-sm primary">Get Started</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="badge">Open Source &middot; MIT License &middot; API + UI + Python</div>
+  <h1>Synthetic document datasets <span class="gradient">with ground truth.</span></h1>
+  <p>Generate photorealistic photos of any document, verify every data point, and ship vision AI that works on warehouse-quality photos — not scanner PDFs.</p>
+  <div class="ctas">
+    <a href="#pricing" class="btn primary">Start Free</a>
+    <a href="#how-it-works" class="btn secondary">See how it works</a>
+  </div>
+</section>
+
+<!-- BEFORE/AFTER -->
+<section style="padding: 20px 24px 60px">
+  <div class="container" style="text-align:center">
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;align-items:flex-start">
+      <div style="flex:1;min-width:280px;max-width:380px">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Input: Clean PDF</div>
+        <img src="assets/clean_document.png" alt="Clean document PDF" style="width:100%;border-radius:10px;border:1px solid var(--border)">
+      </div>
+      <div style="display:flex;align-items:center;padding:20px;color:var(--text3);font-size:24px">&rarr;</div>
+      <div style="flex:1;min-width:280px;max-width:380px">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Output: Realistic Photo</div>
+        <img src="assets/photo_full_picture.png" alt="Realistic warehouse photo" style="width:100%;border-radius:10px;border:1px solid var(--border)">
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--text3);margin-top:16px">Same document. Same data. But now it looks like a bodeguero snapped it with a 2017 Samsung at a loading dock.</p>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem">
+  <div class="container">
+    <blockquote>
+      "I needed to test my vision pipeline but I had <strong>12 real documents</strong>. I needed 1,200 variations — blurry, folded, stained, cropped — with <strong>known ground truth</strong> for every field. I also needed the agent to do lookups after extraction, so the data in the photo <strong>had to be real and verifiable</strong>."
+    </blockquote>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works">
+  <div class="container">
+    <h2>The pipeline</h2>
+    <p class="section-sub">From structured data to verified synthetic photos in one call. Every generated image has a ground-truth manifest.</p>
+    <div class="pipeline">
+      <div class="pipeline-step">
+        <div class="pipeline-num">1</div>
+        <div>
+          <h4>Input <span class="pipeline-tag tag-api">API</span><span class="pipeline-tag tag-ui">UI</span></h4>
+          <p>JSON schema, uploaded PDF, or raw image. Define the data you need in the output: OC numbers, item names, quantities, dates. Or upload an existing document and we detect the schema.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">2</div>
+        <div>
+          <h4>Render clean document</h4>
+          <p>Jinja2 HTML templates produce a pixel-perfect PDF. Dispatch guides, invoices, POs, BOLs — or bring your own template. Every field maps to a schema key.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">3</div>
+        <div>
+          <h4>Apply photo variations</h4>
+          <p>Gemini generates a realistic photo using your variation config. Camera model, paper deformation, stains, blur, angle — every variable is controllable or randomizable.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">4</div>
+        <div>
+          <h4>Verify ground truth <span class="pipeline-tag tag-new">Key</span></h4>
+          <p>A second model pass reads the generated photo back and checks every schema field against the source data. If a field is wrong (hallucinated text, garbled number), it gets flagged and re-generated. Output: a verified image + ground truth JSON.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">5</div>
+        <div>
+          <h4>Occlusion manifest <span class="pipeline-tag tag-new">Key</span></h4>
+          <p>If a variation intentionally occludes data (crop, stain, fold), the manifest reports exactly which schema fields are affected: <code>"oc_number": "occluded_by_crop"</code>, <code>"item_3_qty": "partially_obstructed_by_stain"</code>. Your benchmark knows what should fail.</p>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-num">6</div>
+        <div>
+          <h4>Output dataset</h4>
+          <p>Clean PDF + N verified photos + ground truth JSON + occlusion manifest per image. Ready for training, benchmarking, or feeding into your agentic pipeline for end-to-end testing.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ENTRY POINTS -->
+<section style="padding-top:0">
+  <div class="container">
+    <h2>Every entry point</h2>
+    <p class="section-sub">Start from wherever you are in your pipeline.</p>
+    <div class="entry-grid">
+      <div class="entry">
+        <div class="label">From scratch</div>
+        <h3>JSON Schema &rarr; Photos</h3>
+        <p>Send document data as JSON. Get back PDF + verified photos with ground truth.</p>
+      </div>
+      <div class="entry">
+        <div class="label">Existing document</div>
+        <h3>Upload PDF &rarr; Variations</h3>
+        <p>Upload any PDF or image. We detect the schema, then generate N realistic variations with known ground truth.</p>
+      </div>
+      <div class="entry">
+        <div class="label">Reference photo</div>
+        <h3>Seed Image &rarr; Style Transfer</h3>
+        <p>Provide a reference photo (lighting, background, camera style). New documents match that visual style.</p>
+      </div>
+      <div class="entry">
+        <div class="label">Batch</div>
+        <h3>N Docs x M Variations</h3>
+        <p>Generate thousands of document-variation combinations. Progress tracking, S3 upload, parallel generation.</p>
+      </div>
+      <div class="entry">
+        <div class="label">Fine-tuning</div>
+        <h3>Training Pairs</h3>
+        <p>Output image + ground truth pairs in formats ready for fine-tuning vision models: JSONL, COCO, or custom schema.</p>
+      </div>
+      <div class="entry">
+        <div class="label">Vision pipeline testing</div>
+        <h3>E2E Agent Tests</h3>
+        <p>Generate documents with known data, feed them to your agent, verify extractions + downstream lookups match ground truth.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" style="background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+  <div class="container">
+    <h2>Everything is configurable</h2>
+    <p class="section-sub">Camera model is free text. So is the angle. And the stain type. And the background. Every field is a knob.</p>
+    <div class="grid">
+      <div class="card">
+        <div class="icon">📸</div>
+        <h3>22 camera presets + free text</h3>
+        <p>Samsung Galaxy S7 through iPhone 14, budget Androids, rugged field devices. Or write anything: <code>"Nokia 3310 with cracked screen"</code></p>
+      </div>
+      <div class="card">
+        <div class="icon">📄</div>
+        <h3>Paper physics</h3>
+        <p>Curvature, folds (dog-ear, middle vertical, multiple), wrinkles, corner bends, edge curl. Paper behaves like paper.</p>
+      </div>
+      <div class="card">
+        <div class="icon">☕</div>
+        <h3>Damage & contamination</h3>
+        <p>Coffee stains, water damage, grease marks, ink smudges, torn edges, dirt. Each with type, location, opacity, and text obstruction level.</p>
+      </div>
+      <div class="card">
+        <div class="icon">📐</div>
+        <h3>Geometric distortion</h3>
+        <p>Perspective skew, keystone distortion, rotation (0-15 deg), oblique angles up to 45 deg. Simulate every handheld capture angle.</p>
+      </div>
+      <div class="card">
+        <div class="icon">💡</div>
+        <h3>Lighting & artifacts</h3>
+        <p>Glare hotspots, uneven lighting, shadow bands, finger shadows, JPEG compression (none to heavy), motion blur with direction control.</p>
+      </div>
+      <div class="card">
+        <div class="icon">✋</div>
+        <h3>Hand & context</h3>
+        <p>Hand visible or not, grip type (thumb corner, pinched edge, both hands), gloves (warehouse, latex, none). Background as blurred context.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🗣️</div>
+        <h3>Natural language config</h3>
+        <p>"Blurry photo with coffee stain, strong angle, old Samsung, paper folded in half" — AI converts your description to variation JSON.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🔍</div>
+        <h3>Ground truth verification</h3>
+        <p>Every generated image is read back and verified against the source schema. Garbled fields get flagged and regenerated. You get verified data.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🎯</div>
+        <h3>Occlusion tracking</h3>
+        <p>When a crop, stain, or fold hides data, the manifest says exactly which fields are affected and why. Your benchmark knows what should fail.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section>
+  <div class="container">
+    <h2>Built for real problems</h2>
+    <p class="section-sub">Not another demo tool. Built because we needed it.</p>
+    <div class="use-cases">
+      <div class="use-case">
+        <div class="tag">OCR TRAINING</div>
+        <h3>Generate 10,000 training pairs</h3>
+        <p>N documents x M variations with ground truth labels. Export as JSONL for fine-tuning. Systematically vary difficulty: clean → blurry → stained → cropped.</p>
+      </div>
+      <div class="use-case">
+        <div class="tag">VISION BENCHMARK</div>
+        <h3>Measure extraction accuracy</h3>
+        <p>Run your OCR/vision model on a controlled dataset. Know exactly which fields should be extractable vs occluded. Compare models objectively.</p>
+      </div>
+      <div class="use-case">
+        <div class="tag">AGENTIC TESTING</div>
+        <h3>End-to-end agent validation</h3>
+        <p>Generate documents with known data. Feed photos to your agent. Verify it extracts correctly AND does the right downstream actions (lookups, API calls, routing).</p>
+      </div>
+      <div class="use-case">
+        <div class="tag">COLD START</div>
+        <h3>Not enough real documents</h3>
+        <p>You have 12 real invoices but need 1,200 test cases. Generate synthetic variations that cover every edge case your production pipeline will see.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRESET GALLERY -->
+<section style="padding-top: 40px;">
+  <div class="container" style="text-align:center">
+    <h2>Same document. Different nightmares.</h2>
+    <p class="section-sub" style="margin:0 auto 32px">Every photo generated from the same clean PDF. Each preset targets a different real-world failure mode.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+      <div>
+        <img src="assets/photo_full_picture.png" alt="full_picture preset" style="width:100%;border-radius:8px;border:1px solid var(--border)">
+        <div style="font-family:monospace;font-size:12px;color:var(--accent2);margin-top:6px">full_picture</div>
+        <div style="font-size:11px;color:var(--text3)">Clean handheld, 90% frame</div>
+      </div>
+      <div>
+        <img src="assets/photo_folded_skewed.png" alt="folded_skewed preset" style="width:100%;border-radius:8px;border:1px solid var(--border)">
+        <div style="font-family:monospace;font-size:12px;color:var(--accent2);margin-top:6px">folded_skewed</div>
+        <div style="font-size:11px;color:var(--text3)">Dog-ear, crease, 6deg tilt</div>
+      </div>
+      <div>
+        <img src="assets/photo_zoomed_detail.png" alt="zoomed_detail preset" style="width:100%;border-radius:8px;border:1px solid var(--border)">
+        <div style="font-family:monospace;font-size:12px;color:var(--accent2);margin-top:6px">zoomed_detail</div>
+        <div style="font-size:11px;color:var(--text3)">Close-up OCR, oblique 25-30deg</div>
+      </div>
+      <div>
+        <img src="assets/photo_blurry.png" alt="blurry preset" style="width:100%;border-radius:8px;border:1px solid var(--border)">
+        <div style="font-family:monospace;font-size:12px;color:var(--accent2);margin-top:6px">blurry</div>
+        <div style="font-size:11px;color:var(--text3)">Motion blur, partial legibility</div>
+      </div>
+      <div>
+        <img src="assets/photo_coffee_stain.png" alt="coffee_stain preset" style="width:100%;border-radius:8px;border:1px solid var(--border)">
+        <div style="font-family:monospace;font-size:12px;color:var(--accent2);margin-top:6px">coffee_stain</div>
+        <div style="font-size:11px;color:var(--text3)">Stain over text, partial obstruction</div>
+      </div>
+      <div>
+        <img src="assets/photo_cropped_header.png" alt="cropped_header preset" style="width:100%;border-radius:8px;border:1px solid var(--border)">
+        <div style="font-family:monospace;font-size:12px;color:var(--accent2);margin-top:6px">cropped_header</div>
+        <div style="font-size:11px;color:var(--text3)">Top 10-15% cut off</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK START -->
+<section>
+  <div class="container" style="text-align:center">
+    <h2>One command</h2>
+    <p class="section-sub" style="margin-left:auto;margin-right:auto">From zero to verified dataset in 30 seconds</p>
+    <div class="code-block">
+      <span class="c"># Install</span><br>
+      <span class="g">pip install</span> penquify && <span class="g">playwright install</span> chromium<br><br>
+      <span class="c"># Full demo: PDF + 8 verified photo variations</span><br>
+      <span class="g">penquify</span> demo<br><br>
+      <span class="c"># Upload any PDF, generate realistic photos</span><br>
+      <span class="g">penquify</span> photos <span class="o">--image</span> invoice.pdf <span class="o">--presets</span> blurry coffee_stain<br><br>
+      <span class="c"># Describe what you want in plain English</span><br>
+      <span class="g">penquify</span> config <span class="o">--text</span> <span class="p">"folded paper with grease, shot on old Motorola"</span><br><br>
+      <span class="c"># Batch: 50 documents x 4 variations = 200 verified images</span><br>
+      <span class="g">penquify</span> dataset <span class="o">--count</span> 50 <span class="o">--presets</span> full_picture blurry coffee_stain cropped_header
+    </div>
+  </div>
+</section>
+
+<!-- INTERFACES -->
+<section style="padding-top:40px">
+  <div class="container" style="text-align:center">
+    <h2>Every interface</h2>
+    <div class="entry-grid" style="max-width:900px;margin:24px auto 0">
+      <div class="entry"><div class="label">Terminal</div><h3>CLI</h3><p><code>penquify demo</code></p></div>
+      <div class="entry"><div class="label">Import</div><h3>Python Library</h3><p><code>from penquify import ...</code></p></div>
+      <div class="entry"><div class="label">HTTP</div><h3>REST API</h3><p>FastAPI with Swagger docs</p></div>
+      <div class="entry"><div class="label">AI Agent</div><h3>MCP Server</h3><p>5 tools for Claude/Cursor</p></div>
+      <div class="entry"><div class="label">Plugin</div><h3>Agent SDK</h3><p>Drop-in tool list</p></div>
+      <div class="entry"><div class="label">Cloud</div><h3>penquify.com</h3><p>UI + API credits</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <h2>Pricing</h2>
+    <p class="section-sub" style="margin-left:auto;margin-right:auto">Self-host free forever. Cloud for convenience.</p>
+    <div class="pricing-grid">
+      <div class="plan">
+        <div class="plan-name">Open Source</div>
+        <div class="price">$0 <span>forever</span></div>
+        <div class="desc">Self-hosted. Bring your own Gemini key.</div>
+        <ul>
+          <li>All document templates</li>
+          <li>All photo presets + custom</li>
+          <li>CLI + Python library</li>
+          <li>REST API (self-hosted)</li>
+          <li>MCP server + Agent SDK</li>
+          <li>Ground truth verification</li>
+          <li>Community support</li>
+        </ul>
+        <a href="https://github.com/MAXMARDONES/penquify" class="plan-btn ghost">View on GitHub</a>
+      </div>
+
+      <div class="plan featured">
+        <div class="plan-name">Pro</div>
+        <div class="price">$29 <span>/mo</span></div>
+        <div class="desc">500 credits/mo. UI dashboard. No API key needed.</div>
+        <ul>
+          <li>Everything in Open Source</li>
+          <li>500 image credits/month</li>
+          <li>Web UI with live preview</li>
+          <li>Hosted API (no infra needed)</li>
+          <li>Dataset history + downloads</li>
+          <li>Priority generation queue</li>
+          <li>Email support</li>
+        </ul>
+        <a href="#" class="plan-btn primary">Coming Soon</a>
+      </div>
+
+      <div class="plan">
+        <div class="plan-name">Enterprise</div>
+        <div class="price">Custom</div>
+        <div class="desc">Volume credits, SLA, custom templates, on-prem.</div>
+        <ul>
+          <li>Everything in Pro</li>
+          <li>Volume credit pricing</li>
+          <li>Custom document templates</li>
+          <li>On-premise deployment</li>
+          <li>SSO + team management</li>
+          <li>Dedicated support + SLA</li>
+          <li>Custom model fine-tuning</li>
+        </ul>
+        <a href="mailto:max@getsmartup.ai" class="plan-btn ghost">Contact Us</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BOTTOM CTA -->
+<section class="bottom-cta">
+  <h2>Ready to build better vision AI?</h2>
+  <p>Start generating verified document datasets in 30 seconds. Open source, or let us handle the infra.</p>
+  <div class="ctas">
+    <a href="https://github.com/MAXMARDONES/penquify" class="btn primary">Get Started Free</a>
+    <a href="mailto:max@getsmartup.ai" class="btn secondary">Talk to Us</a>
+  </div>
+</section>
+
+<footer>
+  <p>
+    <a href="https://github.com/MAXMARDONES/penquify">GitHub</a> &middot;
+    <a href="https://github.com/MAXMARDONES/penquify/blob/main/LICENSE">MIT License</a> &middot;
+    <a href="https://github.com/MAXMARDONES/penquify/blob/main/SECURITY.md">Security</a> &middot;
+    Built by <a href="https://getsmartup.ai">Max Mardones</a>
+  </p>
+  <p style="margin-top:6px; font-size:11px;">
+    From Chilean "penca" (lousy) — because your documents should look realistically bad, not studio-perfect.
+  </p>
+</footer>
+
+</body>
+</html>
