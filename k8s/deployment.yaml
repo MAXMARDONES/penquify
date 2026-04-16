@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: penquify
-          image: REDACTED_AWS_ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/penquify:latest
+          image: YOUR_ECR_URI/penquify:latest
           ports:
             - containerPort: 8080
           env:

@@ -28,7 +28,7 @@ def demo_guia():
             receiver_rut="96.754.321-8",
             receiver_giro="Hoteleria y entretenimiento",
             receiver_address="Av. Industrial 2500, Santiago",
-            receiver_contact="Bodega Central — Carlos Mendez",
+            receiver_contact="Warehouse Central — Carlos Mendez",
             oc_number="4500000316",
             oc_date="29/12/2025",
             payment_terms="Condicion de pago: 30 dias",
