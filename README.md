@@ -1,5 +1,9 @@
 <div align="center">
 
+<img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnFsOGJ3ODRyMWFieXZwM3o1MnZzNnkyMjlncWg1N3hld2VuYWl4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l2JecQs22YOIPMnoA/giphy.gif" width="300" alt="penquify"/>
+
+<br/>
+
 <!-- Dynamic shields -->
 [![GitHub stars](https://img.shields.io/github/stars/MAXMARDONES/penquify?style=for-the-badge&logo=github&color=114541)](https://github.com/MAXMARDONES/penquify/stargazers)
 [![License](https://img.shields.io/github/license/MAXMARDONES/penquify?style=for-the-badge&color=114541)](LICENSE)
