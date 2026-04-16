@@ -1,41 +1,31 @@
 <div align="center">
 
-<img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnFsOGJ3ODRyMWFieXZwM3o1MnZzNnkyMjlncWg1N3hld2VuYWl4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l2JecQs22YOIPMnoA/giphy.gif" width="300" alt="penquify"/>
+# penquify
+
+**OCR in reverse. Make your documents worse.**
+
+<img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnFsOGJ3ODRyMWFieXZwM3o1MnZzNnkyMjlncWg1N3hld2VuYWl4ZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l2JecQs22YOIPMnoA/giphy.gif" width="220" alt="penquify"/>
+
+A Python toolkit that generates photorealistic smartphone photos of logistics documents<br/>
+with coffee stains, folds, blur, skew — and verified ground truth for every field.
+
+[![GitHub stars](https://img.shields.io/github/stars/MAXMARDONES/penquify?style=flat-square&logo=github&color=114541)](https://github.com/MAXMARDONES/penquify/stargazers)
+[![License](https://img.shields.io/github/license/MAXMARDONES/penquify?style=flat-square&color=114541)](LICENSE)
+[![Last commit](https://img.shields.io/github/last-commit/MAXMARDONES/penquify?style=flat-square&color=114541)](https://github.com/MAXMARDONES/penquify/commits/main)
+[![SmartUp](https://img.shields.io/badge/SmartUp-vibecheck%20pass-8B5CF6?style=flat-square)](https://getsmartup.ai)
 
 <br/>
 
-<!-- Dynamic shields -->
-[![GitHub stars](https://img.shields.io/github/stars/MAXMARDONES/penquify?style=for-the-badge&logo=github&color=114541)](https://github.com/MAXMARDONES/penquify/stargazers)
-[![License](https://img.shields.io/github/license/MAXMARDONES/penquify?style=for-the-badge&color=114541)](LICENSE)
-[![Python](https://img.shields.io/pypi/pyversions/penquify?style=for-the-badge&logo=python&logoColor=white&color=114541)](https://pypi.org/project/penquify/)
-[![GitHub last commit](https://img.shields.io/github/last-commit/MAXMARDONES/penquify?style=for-the-badge&color=114541)](https://github.com/MAXMARDONES/penquify/commits/main)
-
-<!-- Static feature badges -->
 <img src="https://img.shields.io/badge/Gemini-Image%20Gen-8B5CF6?style=flat-square&logo=google" alt="gemini"/>
 <img src="https://img.shields.io/badge/MCP-Server-F59E0B?style=flat-square" alt="mcp"/>
 <img src="https://img.shields.io/badge/Agent%20SDK-Plugin-06B6D4?style=flat-square" alt="agent-sdk"/>
 <img src="https://img.shields.io/badge/FastAPI-REST-009688?style=flat-square&logo=fastapi" alt="fastapi"/>
 <img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker" alt="docker"/>
 <img src="https://img.shields.io/badge/Ground%20Truth-Verified-22C55E?style=flat-square" alt="verified"/>
-<img src="https://img.shields.io/badge/SmartUp-vibecheck%20pass-8B5CF6?style=flat-square" alt="smartup vibecheck"/>
 
-<br/><br/>
-
-# penquify
+[penquify.com](https://penquify.com) · [Docs](https://docs.penquify.com) · [GitHub](https://github.com/MAXMARDONES/penquify)
 
 > *From Chilean slang **"penca"** (lousy, worse) — because your document photos should look realistically bad, not studio-perfect.*
-
-### OCR in reverse. Make your documents worse.
-
-A Python toolkit that takes structured data and produces photorealistic smartphone photos of printed logistics documents — with coffee stains, folds, blur, skew, and every imperfection that makes real-world document processing hard. Every photo verified against ground truth.
-
-**CLI** · **Python library** · **REST API** · **MCP server** · **Agent SDK plugin**
-
-<br/>
-
-[![Website](https://img.shields.io/badge/penquify.com-Website-114541?style=for-the-badge)](https://penquify.com)
-[![Docs](https://img.shields.io/badge/docs.penquify.com-Documentation-1a6b65?style=for-the-badge)](https://docs.penquify.com)
-[![GitHub](https://img.shields.io/badge/GitHub-Source-181717?style=for-the-badge&logo=github)](https://github.com/MAXMARDONES/penquify)
 
 </div>
 
