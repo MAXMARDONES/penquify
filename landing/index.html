@@ -396,6 +396,57 @@
   </div>
 </section>
 
+<!-- VERIFICATION EXAMPLE -->
+<section>
+  <div class="container">
+    <h2>Ground truth in action</h2>
+    <p class="section-sub">Real output from the verification pipeline. 55 fields extracted blind, compared programmatically. The model never sees the answers.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+      <div class="card">
+        <div class="icon">&#9989;</div>
+        <h3>51 of 55 fields matched</h3>
+        <p style="font-size:12px;color:var(--text2);font-family:monospace;line-height:1.8;margin-top:8px">
+          doc_number: 01182034 <span style="color:var(--green)">MATCH</span><br>
+          emitter_name: COMERCIAL AGRO SUR <span style="color:var(--green)">MATCH</span><br>
+          oc_number: 4500000316 <span style="color:var(--green)">MATCH</span><br>
+          item_1_qty: 12 <span style="color:var(--green)">MATCH</span><br>
+          item_2_description: MOZZARELLA... <span style="color:var(--green)">MATCH</span><br>
+          total: 1077164 <span style="color:var(--green)">MATCH</span><br>
+          <span style="color:var(--text3)">... 45 more fields matched</span>
+        </p>
+      </div>
+      <div class="card">
+        <div class="icon">&#10060;</div>
+        <h3>4 mismatches caught</h3>
+        <p style="font-size:12px;color:var(--text2);font-family:monospace;line-height:1.8;margin-top:8px">
+          emitter_rut: <span style="color:var(--red)">77.234.361-1</span> expected <span style="color:var(--green)">77.234.567-1</span><br>
+          oc_number: <span style="color:var(--red)">450000316</span> expected <span style="color:var(--green)">4500000316</span><br>
+          vehicle_plate: <span style="color:var(--red)">WFRP-91</span> expected <span style="color:var(--green)">WFKP-91</span><br>
+          item_5_code: <span style="color:var(--red)">AS-7022</span> expected <span style="color:var(--green)">AS-7028</span><br>
+          <br>
+          <span style="color:var(--orange)">Reason: hallucinated_by_image_gen</span><br>
+          <span style="color:var(--text3)">These are image generation errors, not OCR failures. Without verification, this data would poison your training set.</span>
+        </p>
+      </div>
+      <div class="card">
+        <div class="icon">&#128270;</div>
+        <h3>Occlusion manifest</h3>
+        <p style="font-size:12px;color:var(--text2);font-family:monospace;line-height:1.8;margin-top:8px">
+          <span style="color:var(--green)">doc_number: visible</span><br>
+          <span style="color:var(--green)">item_1_qty: visible</span><br>
+          <span style="color:var(--red)">emitter_rut: mismatch</span><br>
+          &nbsp;&nbsp;reason: hallucinated_by_image_gen<br>
+          <span style="color:var(--orange)">header_date: occluded_by_crop</span><br>
+          &nbsp;&nbsp;reason: top 15% missing<br>
+          <span style="color:var(--orange)">item_3_total: obscured_by_stain</span><br>
+          &nbsp;&nbsp;reason: coffee_stain(upper_right)<br>
+          <span style="color:var(--text3)">Your benchmark knows exactly what should fail.</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- QUICK START -->
 <section>
   <div class="container" style="text-align:center">

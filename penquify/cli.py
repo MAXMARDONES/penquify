@@ -73,8 +73,8 @@ def demo_guia():
 async def main():
     import argparse
     parser = argparse.ArgumentParser(description="Penquify — logistics document + photo generator")
-    parser.add_argument("command", choices=["demo", "pdf", "photos", "dataset"],
-                        help="demo=full pipeline, pdf=generate PDF only, photos=from existing PNG, dataset=full")
+    parser.add_argument("command", choices=["demo", "pdf", "photos", "dataset", "upload"],
+                        help="demo=full pipeline, pdf=PDF only, photos=from PNG, dataset=full, upload=PDF→schema→photos")
     parser.add_argument("--output", "-o", default="output", help="Output directory")
     parser.add_argument("--presets", nargs="*", help="Photo preset names (default: all)")
     parser.add_argument("--image", help="Reference image path (for photos command)")
@@ -122,6 +122,23 @@ async def main():
         )
         ok = sum(1 for r in results if r["ok"])
         print(f"Done: {ok}/{len(results)} photos")
+
+    elif args.command == "upload":
+        from .generators.upload import upload_and_generate
+        if not args.image:
+            print("ERROR: --image required (path to PDF or image)")
+            sys.exit(1)
+        print(f"Upload pipeline: {args.image}")
+        result = await upload_and_generate(
+            args.image, output_dir=args.output,
+            preset_names=args.presets,
+        )
+        schema = result.get("detected_schema", {})
+        photos = result.get("photos", [])
+        verified = sum(1 for p in photos if p.get("verified"))
+        print(f"\nSchema: {schema.get('document_type', '?')}, {len(schema.get('items', []))} items")
+        print(f"Photos: {verified}/{len(photos)} verified")
+        print(f"Output: {args.output}/")
 
 
 def run():

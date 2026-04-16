@@ -189,6 +189,32 @@ async def gen_config(req: ConfigFromTextRequest):
     return variation
 
 
+@app.post("/generate/from-upload")
+async def gen_from_upload(file: UploadFile = File(...), presets: str = "full_picture,folded_skewed,blurry"):
+    """Upload a PDF/image → detect schema → generate verified photos."""
+    from ..generators.upload import upload_and_generate
+
+    run_id = _run_id()
+    out_dir = os.path.join(OUTPUT_DIR, run_id)
+    os.makedirs(out_dir, exist_ok=True)
+
+    # Save uploaded file
+    ext = os.path.splitext(file.filename or "doc.pdf")[1]
+    upload_path = os.path.join(out_dir, f"upload{ext}")
+    with open(upload_path, "wb") as f:
+        content = await file.read()
+        f.write(content)
+
+    preset_list = [p.strip() for p in presets.split(",") if p.strip()]
+
+    result = await upload_and_generate(
+        upload_path, output_dir=out_dir,
+        preset_names=preset_list, max_retries=2,
+    )
+
+    return {"run_id": run_id, **result}
+
+
 @app.get("/documents")
 def list_documents():
     """List all generated document runs."""
