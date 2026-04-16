@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: penquify
+  namespace: utils
+  labels:
+    app: penquify
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: penquify
+  template:
+    metadata:
+      labels:
+        app: penquify
+    spec:
+      containers:
+        - name: penquify
+          image: 893445409965.dkr.ecr.us-east-1.amazonaws.com/penquify:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: penquify-secrets
+                  key: GEMINI_API_KEY
+            - name: PENQUIFY_OUTPUT
+              value: /data/output
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+      volumes:
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: penquify
+  namespace: utils
+spec:
+  selector:
+    app: penquify
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: ClusterIP

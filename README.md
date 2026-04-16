@@ -4,15 +4,22 @@
 <img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="license"/>
 <img src="https://img.shields.io/badge/python-3.10+-yellow?style=for-the-badge&logo=python" alt="python"/>
 <img src="https://img.shields.io/badge/Gemini-Image%20Gen-purple?style=for-the-badge&logo=google" alt="gemini"/>
+<img src="https://img.shields.io/badge/MCP-Server-orange?style=for-the-badge" alt="mcp"/>
+<img src="https://img.shields.io/badge/Agent%20SDK-Plugin-cyan?style=for-the-badge" alt="agent-sdk"/>
 
 <br/><br/>
 
 # penquify
 
-### Synthetic Logistics Document & Photo Dataset Generator
+> *From Chilean slang "penca" (lousy/worse) — because your document photos should look realistically bad, not studio-perfect.*
 
-Generate realistic PDFs and photorealistic smartphone photos of logistics documents
-for training OCR, vision models, and document processing pipelines.
+### Make your documents worse.
+
+A Python toolkit that generates realistic PDFs and photorealistic smartphone photos
+of logistics documents — with coffee stains, folds, blur, skew, and every imperfection
+that makes real-world document processing hard.
+
+Built for training OCR models, benchmarking vision pipelines, and testing agentic document workflows.
 
 <br/>
 
@@ -20,6 +27,7 @@ for training OCR, vision models, and document processing pipelines.
 [Templates](#document-templates) |
 [Photo Variations](#photo-variations) |
 [API](#rest-api) |
+[MCP Server](#mcp-server) |
 [Claude Integration](#claude-code--agent-sdk)
 
 </div>
