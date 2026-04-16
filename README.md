@@ -1,12 +1,19 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/penquify-v0.1.0-blue?style=for-the-badge&logo=python&logoColor=white" alt="version"/>
-<img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="license"/>
-<img src="https://img.shields.io/badge/python-3.10+-yellow?style=for-the-badge&logo=python" alt="python"/>
-<img src="https://img.shields.io/badge/Gemini-Image%20Gen-purple?style=for-the-badge&logo=google" alt="gemini"/>
-<img src="https://img.shields.io/badge/MCP-Server-orange?style=for-the-badge" alt="mcp"/>
-<img src="https://img.shields.io/badge/Agent%20SDK-Plugin-cyan?style=for-the-badge" alt="agent-sdk"/>
-<img src="https://img.shields.io/badge/Docker-Ready-blue?style=for-the-badge&logo=docker" alt="docker"/>
+<!-- Dynamic shields -->
+[![GitHub stars](https://img.shields.io/github/stars/MAXMARDONES/penquify?style=for-the-badge&logo=github&color=114541)](https://github.com/MAXMARDONES/penquify/stargazers)
+[![License](https://img.shields.io/github/license/MAXMARDONES/penquify?style=for-the-badge&color=114541)](LICENSE)
+[![Python](https://img.shields.io/pypi/pyversions/penquify?style=for-the-badge&logo=python&logoColor=white&color=114541)](https://pypi.org/project/penquify/)
+[![GitHub last commit](https://img.shields.io/github/last-commit/MAXMARDONES/penquify?style=for-the-badge&color=114541)](https://github.com/MAXMARDONES/penquify/commits/main)
+
+<!-- Static feature badges -->
+<img src="https://img.shields.io/badge/Gemini-Image%20Gen-8B5CF6?style=flat-square&logo=google" alt="gemini"/>
+<img src="https://img.shields.io/badge/MCP-Server-F59E0B?style=flat-square" alt="mcp"/>
+<img src="https://img.shields.io/badge/Agent%20SDK-Plugin-06B6D4?style=flat-square" alt="agent-sdk"/>
+<img src="https://img.shields.io/badge/FastAPI-REST-009688?style=flat-square&logo=fastapi" alt="fastapi"/>
+<img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker" alt="docker"/>
+<img src="https://img.shields.io/badge/Ground%20Truth-Verified-22C55E?style=flat-square" alt="verified"/>
+<img src="https://img.shields.io/badge/SmartUp-vibecheck%20pass-8B5CF6?style=flat-square" alt="smartup vibecheck"/>
 
 <br/><br/>
 
@@ -14,17 +21,17 @@
 
 > *From Chilean slang **"penca"** (lousy, worse) — because your document photos should look realistically bad, not studio-perfect.*
 
-### Make your documents worse.
+### OCR in reverse. Make your documents worse.
 
-A Python toolkit that takes structured data and produces photorealistic smartphone photos of printed logistics documents — with coffee stains, folds, blur, skew, and every imperfection that makes real-world document processing hard.
+A Python toolkit that takes structured data and produces photorealistic smartphone photos of printed logistics documents — with coffee stains, folds, blur, skew, and every imperfection that makes real-world document processing hard. Every photo verified against ground truth.
 
-**CLI tool** | **Python library** | **REST API** | **MCP server** | **Agent SDK plugin**
+**CLI** · **Python library** · **REST API** · **MCP server** · **Agent SDK plugin**
 
 <br/>
 
-[Website](https://penquify.com) |
-[Docs](https://docs.penquify.com) |
-[GitHub](https://github.com/MAXMARDONES/penquify)
+[![Website](https://img.shields.io/badge/penquify.com-Website-114541?style=for-the-badge)](https://penquify.com)
+[![Docs](https://img.shields.io/badge/docs.penquify.com-Documentation-1a6b65?style=for-the-badge)](https://docs.penquify.com)
+[![GitHub](https://img.shields.io/badge/GitHub-Source-181717?style=for-the-badge&logo=github)](https://github.com/MAXMARDONES/penquify)
 
 </div>
 
