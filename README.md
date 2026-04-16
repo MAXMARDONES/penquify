@@ -37,38 +37,38 @@ A Python toolkit that takes structured data and produces photorealistic smartpho
 <div align="center">
 <table>
 <tr>
-<td align="center"><strong>Input: Clean PDF</strong></td>
-<td align="center"><strong>→</strong></td>
+<td align="center"><strong>Input: Structured Data</strong></td>
+<td align="center"></td>
 <td align="center"><strong>Output: Warehouse Photo</strong></td>
 </tr>
 <tr>
 <td><img src="landing/assets/clean_document.png" width="280" alt="Clean PDF"/></td>
-<td>→</td>
-<td><img src="landing/assets/photo_full_picture.png" width="280" alt="Realistic photo"/></td>
+<td align="center" style="font-size:24px">→</td>
+<td><img src="landing/assets/ai_studio_photo_1.jpg" width="280" alt="Realistic photo"/></td>
 </tr>
 </table>
 </div>
 
 Same document. Same data. But now it looks like someone snapped it with a 2017 Samsung at a loading dock.
 
-### Every variation from the same PDF
+### Every variation from the same document
 
 <div align="center">
 <table>
 <tr>
-<td align="center"><img src="landing/assets/photo_full_picture.png" width="200"/><br/><code>full_picture</code></td>
-<td align="center"><img src="landing/assets/photo_folded_skewed.png" width="200"/><br/><code>folded_skewed</code></td>
-<td align="center"><img src="landing/assets/photo_blurry.png" width="200"/><br/><code>blurry</code></td>
+<td align="center"><img src="landing/assets/ai_studio_photo_1.jpg" width="200"/><br/><code>full_picture</code></td>
+<td align="center"><img src="landing/assets/ai_studio_photo_3.jpg" width="200"/><br/><code>folded_skewed</code></td>
+<td align="center"><img src="landing/assets/ai_studio_photo_5.jpg" width="200"/><br/><code>strong_oblique</code></td>
 </tr>
 <tr>
-<td align="center"><img src="landing/assets/photo_coffee_stain.png" width="200"/><br/><code>coffee_stain</code></td>
-<td align="center"><img src="landing/assets/photo_cropped_header.png" width="200"/><br/><code>cropped_header</code></td>
-<td align="center"><img src="landing/assets/photo_zoomed_detail.png" width="200"/><br/><code>zoomed_detail</code></td>
+<td align="center"><img src="landing/assets/ai_studio_photo_7.jpg" width="200"/><br/><code>coffee_stain</code></td>
+<td align="center"><img src="landing/assets/ai_studio_photo_8.jpg" width="200"/><br/><code>stain + angle</code></td>
+<td align="center"><img src="landing/assets/ai_studio_photo_2.jpg" width="200"/><br/><code>galaxy_s7</code></td>
 </tr>
 </table>
 </div>
 
-8 built-in presets + infinite custom via JSON or natural language.
+8 built-in presets + infinite custom via JSON or natural language. Every variable controllable — camera model, paper deformation, stain type, angle, blur.
 
 ```bash
 penquify demo  # generates PDF + 8 photo variations in ./output/
