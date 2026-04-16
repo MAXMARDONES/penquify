@@ -10,7 +10,7 @@ Use for OCR benchmarking, agentic vision E2E testing, and synthetic dataset gene
 ## Quick Start
 
 ```bash
-cd /Users/max/mathiesen/penquify
+cd $(pwd)
 GEMINI_API_KEY=$GEMINI_API_KEY python3 -m penquify.cli demo --output output
 ```
 
@@ -182,7 +182,7 @@ Available: galaxy_s7, galaxy_s8, galaxy_a5_2017, moto_g5, iphone_7, iphone_8, pi
     "date": "16/04/2026",
     "emitter_name": "COMERCIAL AGRO SUR LTDA.",
     "emitter_rut": "77.234.567-1",
-    "receiver_name": "INMOBILIARIA LUCKY S.A.",
+    "receiver_name": "ACME LOGISTICS S.A.",
     "oc_number": "4500000316"
   },
   "items": [

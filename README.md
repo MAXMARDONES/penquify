@@ -6,51 +6,51 @@
 <img src="https://img.shields.io/badge/Gemini-Image%20Gen-purple?style=for-the-badge&logo=google" alt="gemini"/>
 <img src="https://img.shields.io/badge/MCP-Server-orange?style=for-the-badge" alt="mcp"/>
 <img src="https://img.shields.io/badge/Agent%20SDK-Plugin-cyan?style=for-the-badge" alt="agent-sdk"/>
+<img src="https://img.shields.io/badge/Docker-Ready-blue?style=for-the-badge&logo=docker" alt="docker"/>
 
 <br/><br/>
 
 # penquify
 
-> *From Chilean slang "penca" (lousy/worse) — because your document photos should look realistically bad, not studio-perfect.*
+> *From Chilean slang **"penca"** (lousy, worse) — because your document photos should look realistically bad, not studio-perfect.*
 
 ### Make your documents worse.
 
-A Python toolkit that generates realistic PDFs and photorealistic smartphone photos
-of logistics documents — with coffee stains, folds, blur, skew, and every imperfection
-that makes real-world document processing hard.
+A Python toolkit that takes structured data and produces photorealistic smartphone photos of printed logistics documents — with coffee stains, folds, blur, skew, and every imperfection that makes real-world document processing hard.
 
-Built for training OCR models, benchmarking vision pipelines, and testing agentic document workflows.
+**CLI tool** | **Python library** | **REST API** | **MCP server** | **Agent SDK plugin**
 
 <br/>
-
-[Getting Started](#getting-started) |
-[Templates](#document-templates) |
-[Photo Variations](#photo-variations) |
-[API](#rest-api) |
-[MCP Server](#mcp-server) |
-[Claude Integration](#claude-code--agent-sdk)
 
 </div>
 
 ---
 
-## What it does
+## Demo
 
 ```
-OC Number / JSON ──► HTML Template ──► PDF/PNG ──► Gemini Image Gen ──► Realistic Photos
-                         │                              │
-                    Jinja2 render              System instruction +
-                    (guia, factura,            variation JSON config
-                     PO, BOL, etc.)           (blur, fold, stain, skew...)
+JSON payload ──► HTML template ──► PDF / PNG ──► Gemini image gen ──► realistic photo
 ```
 
-**penquify** takes structured document data (or an SAP OC number) and produces:
+**Input:** structured document data (header + items)
 
-1. **Clean PDF/PNG** from configurable HTML templates (guia de despacho, factura SII, PO, BOL)
-2. **Realistic photos** that look like a warehouse worker snapped them with a 2017 Android phone — complete with skew, folds, coffee stains, motion blur, finger shadows, and glare
-3. **Full datasets** with N variations per document for training vision/OCR models
+```json
+{
+  "header": {"doc_number": "00847291", "emitter_name": "ACME FOODS LTDA.", "oc_number": "4500000316"},
+  "items": [
+    {"description": "FROZEN POTATO WEDGES", "qty": 12, "unit": "CJ", "unit_price": 15000},
+    {"description": "MOZZARELLA SHREDDED", "qty": 115, "unit": "KG", "unit_price": 4900}
+  ]
+}
+```
 
-Everything is modular and configurable via JSON — from the phone model to the coffee stain opacity.
+**Output:** clean PDF + N realistic photos at different difficulty levels
+
+<!-- TODO: add before/after images here once repo has demo photos -->
+
+```bash
+penquify demo  # generates PDF + 8 photo variations in ./output/
+```
 
 ---
 
@@ -60,37 +60,56 @@ Everything is modular and configurable via JSON — from the phone model to the 
 
 ```bash
 pip install penquify
+
 # or from source
-git clone https://github.com/maxmathiesen/penquify.git
+git clone https://github.com/MAXMARDONES/penquify.git
 cd penquify && pip install -e ".[all]"
 
-# Playwright browser (for HTML→PDF/PNG)
+# browser engine for HTML → PDF rendering
 playwright install chromium
 ```
 
 ### Environment
 
 ```bash
-export GEMINI_API_KEY="your-key-here"  # Required for photo generation
-# Optional
-export AWS_PROFILE="default"           # For S3 upload
-export DATABASE_URL="postgres://..."    # For PostgreSQL storage
+export GEMINI_API_KEY="your-key"   # required for photo generation
+export PENQUIFY_OUTPUT="./output"  # where files go (default: ~/penquify-output)
 ```
 
-### Quick Demo
+### Run
 
 ```bash
-# Generate a full guia de despacho + 8 photo variations
+# Full demo: PDF + 8 photo variations
 penquify demo
 
-# Generate only PDF
-penquify pdf --doc-json my_document.json
+# PDF only from JSON
+penquify pdf --doc-json invoice.json
 
-# Generate photos from an existing document image
-penquify photos --image document.png --presets full_picture folded_skewed blurry
+# Photos from any document image
+penquify photos --image scan.png --presets full_picture blurry coffee_stain
 
-# Full dataset with custom variations
-penquify dataset --doc-json doc.json --variations-json vars.json --output ./dataset/
+# Full dataset: 10 documents x 3 variations each
+penquify dataset --doc-json docs.json --presets full_picture folded_skewed blurry
+```
+
+### Python
+
+```python
+from penquify.models import Document, DocHeader, DocItem, PhotoVariation, Stain
+from penquify.generators.pdf import generate_document_files
+from penquify.generators.photo import generate_dataset
+
+doc = Document(
+    header=DocHeader(doc_type="guia_despacho", doc_number="00847291", date="16/04/2026",
+                     emitter_name="ACME FOODS LTDA.", oc_number="4500000316"),
+    items=[
+        DocItem(pos=1, code="AF-001", description="FROZEN POTATO WEDGES",
+                qty=12, unit="CJ", unit_price=15000, total=180000),
+    ],
+)
+
+files = await generate_document_files(doc, "output/")
+photos = await generate_dataset(files["png"], preset_names=["full_picture", "blurry"])
 ```
 
 ---
@@ -99,108 +118,87 @@ penquify dataset --doc-json doc.json --variations-json vars.json --output ./data
 
 | Template | Description | Status |
 |---|---|---|
-| `guia_despacho` | Chilean dispatch guide (guia de despacho electronica) | Done |
-| `factura_sii` | Chilean tax invoice (DTE tipo 33, SII standard XML) | Planned |
+| `guia_despacho` | Chilean dispatch guide (guia de despacho electronica) | **Done** |
+| `factura_sii` | Chilean tax invoice (DTE tipo 33, SII XML) | Planned |
 | `purchase_order` | Standard purchase order | Planned |
 | `bill_of_lading` | Transport bill of lading (BOL) | Planned |
 | `nota_credito` | Credit note (DTE tipo 61) | Planned |
-| `nota_debito` | Debit note (DTE tipo 56) | Planned |
-| `orden_compra_sap` | SAP-style purchase order | Planned |
 | `remito` | Argentine dispatch note | Planned |
 
-Templates are **Jinja2 HTML** — fully customizable. Add your own:
+Templates are **Jinja2 HTML** — add your own:
 
 ```bash
-penquify pdf --template my_custom_template.html --doc-json data.json
+penquify pdf --template my_template.html --doc-json data.json
 ```
 
 ---
 
 ## Photo Variations
 
-Everything is configurable via JSON. The system instruction (fixed) ensures operational realism. The variation config controls the specifics.
+A fixed **system instruction** handles base realism (paper physics, camera behavior, operational context). The **variation config** controls specifics. Every field is optional — override only what you need.
 
-### Built-in Presets
+### 8 Built-in Presets
 
-| Preset | Description |
+| Preset | What it tests |
 |---|---|
-| `full_picture` | Clean handheld shot, document fills 90% of frame |
-| `folded_skewed` | Dog-ear fold, vertical crease, 6° rotation, trapezoidal distortion |
-| `zoomed_detail` | Close-up on item rows, oblique 25-30° angle |
-| `blurry` | Motion blur from quick capture, partial text legibility |
-| `cropped_header` | Top 10-15% cut off, header partially missing |
-| `strong_oblique` | 45° angle, strong curvature, column compression |
-| `coffee_stain` | Semi-transparent coffee splash on upper right, text partially obstructed |
-| `stapled_stack` | Main doc stapled with 2 sheets behind, misaligned edges |
+| `full_picture` | Baseline: clean handheld shot, 90% frame coverage |
+| `folded_skewed` | Geometric distortion: dog-ear, crease, 6deg tilt |
+| `zoomed_detail` | Close-up OCR: tight crop, oblique 25-30deg |
+| `blurry` | Motion blur: rushed capture, partial legibility |
+| `cropped_header` | Missing data: top 10-15% cut off |
+| `strong_oblique` | Extreme angle: 45deg, strong curvature |
+| `coffee_stain` | Contamination: stain over text |
+| `stapled_stack` | Multi-page: stapled with sheets behind |
 
-### Full Configuration Schema
-
-**Every field is optional.** Only override what you need.
+### Full Variation Schema
 
 ```json
 {
-  "name": "my_custom_variation",
-
+  "name": "my_variation",
   "camera": "Samsung Galaxy S8",
   "year_device_style": "2017 Android",
   "aspect_ratio": "4:3",
-  "capture_intent": "functional document photo",
-
   "document_coverage": "90% of frame",
-  "background": "blurred warehouse hints only at edges",
-
+  "background": "blurred warehouse at edges",
   "curvature": "slight",
-  "folds": "none",
-  "wrinkles": "minor",
-  "corner_bends": "none",
-  "edge_curl": "none",
-
-  "angle": "slight oblique",
-  "skew": "slight",
-  "rotation_degrees": 0,
-  "focus_plane": "center sharp, edges softer",
-
-  "motion_blur": false,
-  "glare": "mild",
+  "folds": "dog_ear",
+  "wrinkles": "medium",
+  "angle": "45 degree oblique",
+  "skew": "strong",
+  "rotation_degrees": 8,
+  "motion_blur": true,
+  "glare": "strong",
   "shadow_from_hand": true,
-  "jpeg_compression": "light",
-
+  "jpeg_compression": "heavy",
   "hand_visible": true,
-  "grip_type": "thumb on lower corner",
-  "glove": "none",
-
-  "stain": {
-    "type": "coffee",
-    "location": "upper_right",
-    "opacity": "semi-transparent",
-    "text_obstruction": "partial"
-  },
-
-  "cropped_header": false,
-  "stapled": false,
-  "stacked_sheets_behind": 0
+  "grip_type": "both hands",
+  "glove": "warehouse glove",
+  "stain": {"type": "coffee", "location": "upper_right", "opacity": "heavy", "text_obstruction": "partial"},
+  "cropped_header": true,
+  "stapled": true,
+  "stacked_sheets_behind": 2
 }
 ```
 
-### Camera Templates
+Every string field is **free text** — cameras, angles, backgrounds, grip types. Use presets or write whatever describes your scenario.
 
-Any camera is free text, but here are common presets:
+### 22 Camera Presets (+ free text)
 
-| Key | Camera | Era |
-|---|---|---|
-| `galaxy_s7` | Samsung Galaxy S7 | 2016 |
-| `galaxy_s8` | Samsung Galaxy S8 | 2017 |
-| `galaxy_a10` | Samsung Galaxy A10 | 2019 budget |
-| `moto_g5` | Motorola Moto G5 | 2017 budget |
-| `iphone_8` | iPhone 8 | 2017 |
-| `iphone_12` | iPhone 12 | 2020 |
-| `pixel_2` | Google Pixel 2 | 2017 |
-| `huawei_p10` | Huawei P10 Lite | 2017 |
-| `warehouse_generic` | Generic mid-range Android 2017 | 2017 |
+`galaxy_s7` `galaxy_s8` `galaxy_a5_2017` `moto_g5` `iphone_7` `iphone_8` `pixel_2` `huawei_p10` `xiaomi_note4` `galaxy_s9` `iphone_xr` `galaxy_a10` `galaxy_a50` `iphone_11` `galaxy_a21s` `iphone_12` `pixel_4a` `galaxy_a13` `iphone_14` `pixel_7` `warehouse_generic` `field_worker`
+
+Or any free text: `PhotoVariation(camera="Nokia 3310 with cracked screen")`
+
+### Natural Language Config
+
+Don't know the schema? Just describe it:
 
 ```python
-from penquify.models import PhotoVariation
-v = PhotoVariation(camera="Motorola Moto G5 Plus", year_device_style="2017 budget Android")
+from penquify.generators.config import text_to_variation
+
+config = await text_to_variation(
+    "blurry photo with coffee stain, strong angle, old Samsung, paper folded in half"
+)
+# → returns valid PhotoVariation JSON
 ```
 
 ---
@@ -208,62 +206,59 @@ v = PhotoVariation(camera="Motorola Moto G5 Plus", year_device_style="2017 budge
 ## REST API
 
 ```bash
-# Start API server
-penquify-api  # or: uvicorn penquify.api.server:app --port 8080
+uvicorn penquify.api.server:app --port 8080
 ```
-
-### Endpoints
 
 | Method | Path | Description |
 |---|---|---|
-| `POST` | `/generate/guia` | Generate guia de despacho from JSON |
-| `POST` | `/generate/factura` | Generate factura SII |
-| `POST` | `/generate/po` | Generate purchase order |
-| `POST` | `/generate/bol` | Generate bill of lading |
-| `POST` | `/generate/photos` | Generate photos from existing PDF/PNG |
-| `POST` | `/generate/config` | Text → variation JSON via Gemini |
-| `POST` | `/generate/dataset` | Full dataset: doc + N photo variations |
-| `GET` | `/documents` | List generated documents |
-| `GET` | `/documents/{id}` | Download PDF/photos |
-| `GET` | `/presets` | List available photo presets |
-| `GET` | `/templates` | List available document templates |
+| `POST` | `/generate/document` | Document JSON → PDF + PNG |
+| `POST` | `/generate/photos` | Image → realistic photos |
+| `POST` | `/generate/dataset` | Document → PDF → photos (full pipeline) |
+| `POST` | `/generate/config` | Natural language → variation JSON |
+| `GET` | `/documents` | List generated runs |
+| `GET` | `/documents/{id}/{file}` | Download file |
+| `GET` | `/presets` | Photo presets |
+| `GET` | `/templates` | Document templates |
 
 ---
 
-## Claude Code & Agent SDK
+## MCP Server
 
-### Claude Code Skill
-
-```bash
-# In your CLAUDE.md or .claude/commands/
-/penquify demo                    # Generate demo dataset
-/penquify photos --presets blurry coffee_stain
-```
-
-### Agent SDK Plugin
-
-```python
-from penquify import generate_guia, generate_photos
-
-# In your agent's tools
-@tool
-def create_test_document(oc_number: str, variations: list[str]):
-    doc = generate_guia(oc_number=oc_number)
-    photos = generate_photos(doc, presets=variations)
-    return {"pdf": doc.pdf_path, "photos": [p.path for p in photos]}
-```
-
-### MCP Server (planned)
+5 tools for Claude Desktop, Cursor, Windsurf, or any MCP client:
 
 ```json
 {
   "mcpServers": {
     "penquify": {
-      "command": "penquify-mcp",
-      "args": ["--gemini-key", "env:GEMINI_API_KEY"]
+      "command": "python3",
+      "args": ["-m", "penquify.mcp"],
+      "env": {"GEMINI_API_KEY": "your-key"}
     }
   }
 }
+```
+
+Tools: `penquify_generate_document` `penquify_generate_photos` `penquify_generate_dataset` `penquify_text_to_config` `penquify_list_presets`
+
+---
+
+## Claude Code Skills
+
+```bash
+/penquify          # Full reference: presets, cameras, variation schema
+/generate          # Generate a document from description or JSON
+/dataset           # Generate large synthetic datasets
+/add-template      # Add a new document template
+```
+
+---
+
+## Agent SDK Plugin
+
+```python
+from penquify.agent_plugin import penquify_tools
+
+agent = Agent(model="claude-sonnet-4-6", tools=penquify_tools)
 ```
 
 ---
@@ -277,23 +272,17 @@ docker build -t penquify .
 docker run -p 8080:8080 -e GEMINI_API_KEY=xxx penquify
 ```
 
-### AWS (ECS/EKS)
+### docker-compose (with PostgreSQL)
 
 ```bash
-# Build and push to ECR
-aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URI
-docker tag penquify:latest $ECR_URI/penquify:latest
-docker push $ECR_URI/penquify:latest
-
-# Deploy via task definition (see k8s/ directory)
+GEMINI_API_KEY=xxx docker-compose up
 ```
 
-### PostgreSQL Integration
+### Kubernetes
 
 ```bash
-# Store generated documents and metadata in PostgreSQL
-export DATABASE_URL="postgres://user:pass@host:5432/penquify"
-penquify-api --db  # Enables persistent storage
+kubectl apply -f k8s/secret.yaml   # set GEMINI_API_KEY first
+kubectl apply -f k8s/deployment.yaml
 ```
 
 ---
@@ -302,50 +291,46 @@ penquify-api --db  # Enables persistent storage
 
 ```
 penquify/
-  templates/        Jinja2 HTML templates per document type
+  templates/         Jinja2 HTML per doc type
   generators/
-    pdf.py          HTML → PDF/PNG via Playwright
-    photo.py        Gemini image gen with system instruction
-    config.py       Text → variation JSON via Gemini (planned)
+    pdf.py           HTML → PDF/PNG (Playwright)
+    photo.py         PNG → realistic photo (Gemini image gen)
+    config.py        text → variation JSON (Gemini text)
   models/
-    document.py     Document header + body schemas
-    variation.py    Photo variation schema + presets
-  api/
-    server.py       FastAPI REST server
-    routes.py       Endpoints
-  storage/
-    local.py        Filesystem storage
-    s3.py           AWS S3 upload (if AWS CLI available)
-  sii/
-    dte.py          Chilean SII DTE XML generation (planned)
-  cli.py            CLI entry point
+    document.py      DocHeader + DocItem + Document
+    variation.py     PhotoVariation + Stain + 8 presets
+    cameras.py       22 camera presets + free text
+  api/server.py      FastAPI REST
+  mcp.py             MCP server (5 tools)
+  agent_plugin.py    Agent SDK plugin
+  storage/s3.py      AWS S3 upload
+  cli.py             CLI entry point
 ```
 
 ---
 
 ## Roadmap
 
-- [x] Core: Jinja2 templates + Playwright PDF/PNG
-- [x] Core: Gemini photo gen with system instruction + variation JSON
-- [x] Core: 8 built-in photo presets
-- [x] Core: CLI (`penquify demo/pdf/photos/dataset`)
-- [x] Core: S3 upload support
-- [ ] API: FastAPI REST server
-- [ ] API: PostgREST + PostgreSQL integration
-- [ ] Templates: Factura SII (DTE tipo 33 XML)
-- [ ] Templates: Purchase Order, BOL, Nota Credito/Debito
-- [ ] Config: Text → variation JSON via Gemini
-- [ ] Config: Camera preset library (20+ phone models)
-- [ ] Dataset: Batch generation with progress tracking
-- [ ] Dataset: Configurable N variations per document
-- [ ] Deploy: Dockerfile + docker-compose
-- [ ] Deploy: AWS ECS/EKS manifests
-- [ ] Deploy: K8s Helm chart
-- [ ] Integration: Claude Code skill
-- [ ] Integration: Agent SDK plugin
-- [ ] Integration: MCP server
-- [ ] SII: DTE XML generation + validation
-- [ ] SII: Timbre electronico simulation
+- [x] Jinja2 templates + Playwright PDF/PNG
+- [x] Gemini photo gen with system instruction + variation config
+- [x] 8 photo presets + 22 camera presets
+- [x] CLI (`penquify demo/pdf/photos/dataset`)
+- [x] FastAPI REST server (8 endpoints)
+- [x] MCP server (5 tools)
+- [x] Agent SDK plugin
+- [x] Claude Code skills (4 commands)
+- [x] Natural language → variation JSON (Gemini)
+- [x] S3 upload support
+- [x] Dockerfile + docker-compose + K8s manifests
+- [x] GitHub Actions CI
+- [x] CODE_OF_CONDUCT + CONTRIBUTING + LICENSE
+- [ ] PostgreSQL persistent storage
+- [ ] PostgREST auto-API
+- [ ] More templates: factura SII, PO, BOL
+- [ ] SII DTE XML generation
+- [ ] Batch dataset generation with progress bar
+- [ ] PyPI publish
+- [ ] Demo images in README
 
 ---
 
@@ -356,5 +341,5 @@ MIT
 ---
 
 <div align="center">
-<sub>Built by <a href="https://github.com/maxmathiesen">maxmathiesen</a> for SmartUp supply chain AI</sub>
+<sub>Built by <a href="https://github.com/MAXMARDONES">Max Mardones</a> — CEO @ <a href="https://getsmartup.ai">getsmartup.ai</a></sub>
 </div>
