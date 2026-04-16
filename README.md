@@ -16,11 +16,12 @@ with coffee stains, folds, blur, skew — and verified ground truth for every fi
 
 <br/>
 
-<img src="https://img.shields.io/badge/Gemini-Image%20Gen-8B5CF6?style=flat-square&logo=google" alt="gemini"/>
+<img src="https://img.shields.io/badge/CLI-penquify-114541?style=flat-square&logo=gnubash&logoColor=white" alt="cli"/>
+<img src="https://img.shields.io/badge/PyPI-pip%20install-3775A9?style=flat-square&logo=pypi&logoColor=white" alt="pypi"/>
+<img src="https://img.shields.io/badge/REST-FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white" alt="fastapi"/>
 <img src="https://img.shields.io/badge/MCP-Server-F59E0B?style=flat-square" alt="mcp"/>
 <img src="https://img.shields.io/badge/Agent%20SDK-Plugin-06B6D4?style=flat-square" alt="agent-sdk"/>
-<img src="https://img.shields.io/badge/FastAPI-REST-009688?style=flat-square&logo=fastapi" alt="fastapi"/>
-<img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker" alt="docker"/>
+<img src="https://img.shields.io/badge/Gemini-Image%20Gen-8B5CF6?style=flat-square&logo=google" alt="gemini"/>
 <img src="https://img.shields.io/badge/Ground%20Truth-Verified-22C55E?style=flat-square" alt="verified"/>
 
 [penquify.com](https://penquify.com) · [Docs](https://docs.penquify.com) · [GitHub](https://github.com/MAXMARDONES/penquify)
