@@ -136,7 +136,7 @@ PhotoVariation(
     # Failure modes
     cropped_header=True,         # bool
     missing_area="top 15%",      # "" / any description
-    overexposed_patch=True,      # bool
+    overexposure=0.7,            # float 0.0–1.0
     shadow_band=True,            # bool
 
     # Multi-page
