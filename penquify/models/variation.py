@@ -186,4 +186,11 @@ PRESETS = {
         stacked_sheets_behind=2,
         folds="dog_ear",
     ),
+    "overexposed": PhotoVariation(
+        name="overexposed",
+        overexposure=0.7,
+        glare="strong",
+        glare_location="center",
+        uneven_lighting=True,
+    ),
 }
