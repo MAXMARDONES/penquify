@@ -41,7 +41,7 @@ Available fields and their possible values:
 - torn_edge: true | false
 - cropped_header: true | false
 - missing_area: "" | "top 10-15%" | "left edge" | "bottom 5%"
-- overexposed_patch: true | false
+- overexposure: 0.0-1.0 (float, 0=none, 0.3=light wash, 0.6=moderate bleaching, 1.0=fully washed out)
 - shadow_band: true | false
 - stapled: true | false
 - stacked_sheets_behind: 0-5 (int)
