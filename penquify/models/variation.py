@@ -64,7 +64,7 @@ class PhotoVariation:
     # Failure modes (for dataset edge cases)
     cropped_header: bool = False
     missing_area: str = ""  # "top 10-15%", "left edge"
-    overexposed_patch: bool = False
+    overexposure: float = 0.0  # 0.0 (none) to 1.0 (fully washed out)
     shadow_band: bool = False
 
     # Multi-page
