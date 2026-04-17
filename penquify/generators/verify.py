@@ -258,6 +258,8 @@ def build_occlusion_manifest(
         elif status == "illegible":
             if variation.motion_blur:
                 reasons.append(f"blurred_by_motion({variation.blur_direction or 'general'})")
+            if variation.overexposure > 0:
+                reasons.append(f"washed_out_by_overexposure(intensity={variation.overexposure:.1f})")
             if variation.jpeg_compression in ("moderate", "heavy"):
                 reasons.append(f"degraded_by_compression({variation.jpeg_compression})")
             if variation.glare in ("strong",):
