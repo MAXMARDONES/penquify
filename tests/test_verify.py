@@ -96,6 +96,16 @@ def test_occlusion_manifest_stain():
     assert "coffee_stain" in str(manifest["item_2_qty"]["reasons"])
 
 
+def test_occlusion_manifest_overexposure():
+    verification = {"fields": {
+        "item_1_qty": {"status": "illegible", "extracted_value": None, "source_value": "50", "confidence": 0},
+    }}
+    variation = PhotoVariation(overexposure=0.8)
+    manifest = build_occlusion_manifest(verification, variation)
+    assert "overexposure" in str(manifest["item_1_qty"]["reasons"])
+    assert "0.8" in str(manifest["item_1_qty"]["reasons"])
+
+
 def test_occlusion_manifest_blur():
     verification = {"fields": {
         "total": {"status": "illegible", "extracted_value": None, "source_value": "1077164", "confidence": 0},

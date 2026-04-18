@@ -64,7 +64,7 @@ class PhotoVariation:
     # Failure modes (for dataset edge cases)
     cropped_header: bool = False
     missing_area: str = ""  # "top 10-15%", "left edge"
-    overexposed_patch: bool = False
+    overexposure: float = 0.0  # 0.0 (none) to 1.0 (fully washed out)
     shadow_band: bool = False
 
     # Multi-page
@@ -109,11 +109,21 @@ class PhotoVariation:
         }
         if self.stain:
             d["damage"] = {"stain": self.stain.__dict__}
+        failure_modes = {}
         if self.cropped_header or self.missing_area:
-            d["failure_modes"] = {
-                "cropped_header": self.cropped_header,
-                "missing_area": self.missing_area,
-            }
+            failure_modes["cropped_header"] = self.cropped_header
+            failure_modes["missing_area"] = self.missing_area
+        if self.overexposure > 0:
+            failure_modes["overexposure"] = self.overexposure
+            failure_modes["overexposure_description"] = (
+                "uniform global overexposure across entire document — "
+                f"intensity {self.overexposure:.1f} "
+                f"({'light wash' if self.overexposure <= 0.3 else 'moderate bleaching' if self.overexposure <= 0.6 else 'severely washed out, text barely visible'})"
+            )
+        if self.shadow_band:
+            failure_modes["shadow_band"] = True
+        if failure_modes:
+            d["failure_modes"] = failure_modes
         if self.stapled or self.stacked_sheets_behind:
             d["multi_page"] = {
                 "stapled": self.stapled,
@@ -175,5 +185,12 @@ PRESETS = {
         stapled=True,
         stacked_sheets_behind=2,
         folds="dog_ear",
+    ),
+    "overexposed": PhotoVariation(
+        name="overexposed",
+        overexposure=0.7,
+        glare="strong",
+        glare_location="center",
+        uneven_lighting=True,
     ),
 }

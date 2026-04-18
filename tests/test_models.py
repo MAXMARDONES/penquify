@@ -51,6 +51,38 @@ def test_presets_exist():
     assert "coffee_stain" in PRESETS
 
 
+def test_overexposure_default():
+    v = PhotoVariation(name="clean")
+    assert v.overexposure == 0.0
+    j = v.to_prompt_json()
+    assert "failure_modes" not in j or "overexposure" not in j.get("failure_modes", {})
+
+
+def test_overexposure_in_prompt_json():
+    v = PhotoVariation(name="washed", overexposure=0.7)
+    j = v.to_prompt_json()
+    assert "failure_modes" in j
+    assert j["failure_modes"]["overexposure"] == 0.7
+    assert "severely washed out" in j["failure_modes"]["overexposure_description"]
+
+
+def test_overexposure_light():
+    v = PhotoVariation(name="light_wash", overexposure=0.2)
+    j = v.to_prompt_json()
+    assert "light wash" in j["failure_modes"]["overexposure_description"]
+
+
+def test_overexposure_moderate():
+    v = PhotoVariation(name="mod_wash", overexposure=0.5)
+    j = v.to_prompt_json()
+    assert "moderate bleaching" in j["failure_modes"]["overexposure_description"]
+
+
+def test_overexposed_preset_exists():
+    assert "overexposed" in PRESETS
+    assert PRESETS["overexposed"].overexposure == 0.7
+
+
 def test_cameras_library():
     assert len(CAMERAS) >= 20
     assert "galaxy_s8" in CAMERAS

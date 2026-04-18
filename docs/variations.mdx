@@ -82,7 +82,7 @@ When generating a photo, the variation is serialized to JSON and sent to Gemini 
     |-------|------|---------|-------------|
     | `cropped_header` | `bool` | `False` | Header cut off by framing |
     | `missing_area` | `str` | `""` | Missing area description (e.g. `"top 10-15%"`) |
-    | `overexposed_patch` | `bool` | `False` | Overexposed area |
+    | `overexposure` | `float` | `0.0` | Global overexposure intensity (0.0–1.0) |
     | `shadow_band` | `bool` | `False` | Dark shadow band across document |
   </Accordion>
 
